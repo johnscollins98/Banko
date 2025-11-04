@@ -18,7 +18,6 @@ import { Budget } from "@prisma/client";
 import {
   FormEventHandler,
   startTransition,
-  useEffect,
   useOptimistic,
   useState,
 } from "react";
@@ -49,21 +48,28 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
   const [budgetModalOpen, setBudgetModalOpen] = useState(false);
   const [removeWarningOpen, setRemoveWarningOpen] = useState(false);
   const [amount, setAmount] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(category);
+  const [selectedCategory, setSelectedCategory] =
+    useState<SpendingCategory | null>(null);
   const [singleMonthOnly, setSingleMonthOnly] = useState(false);
 
-  const [direction, setDirection] = useState("expense");
+  const [direction, setDirection] = useState("");
 
-  useEffect(() => {
-    setAmount(
-      existingBudget?.amount ? Math.abs(existingBudget.amount).toString() : "",
-    );
-    setDirection((existingBudget?.amount ?? 0) > 0 ? "income" : "expense");
-  }, [existingBudget]);
+  const formCategory = selectedCategory || category;
+  const formAmount =
+    amount ||
+    (existingBudget?.amount
+      ? Math.abs(existingBudget?.amount ?? 0).toString()
+      : "");
+  const formDirection =
+    direction || ((existingBudget?.amount ?? 0) > 0 ? "income" : "expense");
 
-  useEffect(() => {
-    setSelectedCategory(category);
-  }, [category]);
+  const onClose = () => {
+    setBudgetModalOpen(false);
+    setAmount("");
+    setDirection("");
+    setSelectedCategory(null);
+    setSingleMonthOnly(false);
+  };
 
   const setBudgetSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -71,14 +77,14 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
 
     startTransition(async () => {
       setSubmitPending(true);
-      const multiplier = direction === "income" ? 1 : -1;
+      const multiplier = formDirection === "income" ? 1 : -1;
       await setBudget({
-        amount: parseFloat(amount) * multiplier,
-        category: selectedCategory,
+        amount: parseFloat(formAmount) * multiplier,
+        category: formCategory,
         date: singleMonthOnly ? startDate : undefined,
       });
 
-      setBudgetModalOpen(false);
+      onClose();
     });
   };
 
@@ -105,10 +111,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
           {existingBudget ? "Update" : "Add"} Budget
         </Button>
       </div>
-      <Modal
-        isOpen={removeWarningOpen}
-        onClose={() => setRemoveWarningOpen(false)}
-      >
+      <Modal isOpen={removeWarningOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
             {existingBudget?.isOverride ? "Use Default" : "Remove"} Budget
@@ -149,7 +152,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
                 <div className="flex items-center gap-1">
                   £
                   <Input
-                    value={amount}
+                    value={formAmount}
                     onChange={(e) => setAmount(e.target.value)}
                     isRequired
                     required
@@ -168,7 +171,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
                 </div>
                 <Select
                   label="Direction"
-                  selectedKeys={[direction]}
+                  selectedKeys={[formDirection]}
                   onChange={(e) => setDirection(e.target.value)}
                   required
                   isRequired
@@ -181,7 +184,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
                   required
                   isRequired
                   size="lg"
-                  selectedKey={selectedCategory}
+                  selectedKey={formCategory}
                   defaultItems={[...SPENDING_CATEGORIES, "total"].map((c) => ({
                     label: formatCategoryString(c),
                     value: c,

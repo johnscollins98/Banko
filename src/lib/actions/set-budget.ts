@@ -32,7 +32,7 @@ export const setBudget = protectedAction(
           },
         },
       });
-      revalidateTag("budgetOverride");
+      revalidateTag("budgetOverride", {});
     } else {
       await db.budget.upsert({
         create: {
@@ -50,7 +50,7 @@ export const setBudget = protectedAction(
           },
         },
       });
-      revalidateTag("budget");
+      revalidateTag("budget", {});
     }
 
     revalidatePath("/");
@@ -73,7 +73,7 @@ export const removeBudget = protectedAction(
       });
 
       if (res.count !== 0) {
-        revalidateTag("budgetOverride");
+        revalidateTag("budgetOverride", {});
         revalidatePath("/");
         return;
       }
@@ -85,7 +85,7 @@ export const removeBudget = protectedAction(
       },
     });
 
-    revalidateTag("budget");
+    revalidateTag("budget", {});
     revalidatePath("/");
   },
 );

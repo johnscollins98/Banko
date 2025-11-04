@@ -4,7 +4,7 @@ import { formatAsGBP } from "@/lib/currency-format";
 import { orderCategoriesByPopularity } from "@/lib/ordered-categories";
 import { Transactions } from "@/lib/starling-types";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { HiOutlineCash } from "react-icons/hi";
 import FeedEntry from "./feed-entry";
 import { categorySchema } from "./spending-summary";
@@ -33,7 +33,7 @@ export const TransactionFeed = ({ feedItems }: Props) => {
 
   const [groupedByDay, setGroupedByDay] = useState<FeedItemGroups>({});
 
-  useEffect(() => {
+  const initialiseTransactions = () => {
     setGroupedByDay(
       filteredItems.reduce((groups, item) => {
         const date = new Date(item.transactionTime);
@@ -51,7 +51,7 @@ export const TransactionFeed = ({ feedItems }: Props) => {
         return { ...groups, [day]: { ...itemsForDay, total, items } };
       }, {} as FeedItemGroups),
     );
-  }, [filteredItems]);
+  };
 
   const categories = orderCategoriesByPopularity(feedItems);
 
@@ -67,7 +67,7 @@ export const TransactionFeed = ({ feedItems }: Props) => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" ref={initialiseTransactions}>
       {Object.entries(groupedByDay).map(([title, { total, items }]) => (
         <div key={title}>
           <div className="flex items-center justify-between px-1 py-2 text-sm text-foreground-600">

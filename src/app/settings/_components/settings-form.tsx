@@ -12,7 +12,6 @@ import { useTheme } from "next-themes";
 import {
   FormEventHandler,
   startTransition,
-  useEffect,
   useMemo,
   useOptimistic,
   useState,
@@ -40,19 +39,15 @@ export const SettingsForm = ({
     [day, monthBarrierOption],
   );
 
+  const setMonthHandler = (v: MonthBarrierOption) => {
+    setMonthBarrierOption(v);
+    setDay("");
+  };
+
   const validation = useMemo(
     () => UserSettingsSchema.safeParse(settingsToSave),
     [settingsToSave],
   );
-
-  useEffect(() => {
-    if (
-      settingsToSave.monthBarrierOption === "LAST" &&
-      (settingsToSave.day > 7 || settingsToSave.day < 1)
-    ) {
-      setDay("");
-    }
-  }, [settingsToSave]);
 
   const onSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -67,13 +62,14 @@ export const SettingsForm = ({
   };
 
   const { theme, setTheme } = useTheme();
-  const [themeState, setThemState] = useState("");
-  useEffect(() => {
-    setThemState(theme ?? "system");
-  }, [theme]);
+  const [mounted, setMounted] = useState(false);
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col gap-5">
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col gap-5"
+      ref={() => setMounted(true)}
+    >
       <div className="text-xl font-semibold">Please enter your settings</div>
       <Select
         label="Calendar Style"
@@ -84,9 +80,7 @@ export const SettingsForm = ({
         errorMessage={
           validation.error?.formErrors.fieldErrors.monthBarrierOption
         }
-        onChange={(e) =>
-          setMonthBarrierOption(e.target.value as MonthBarrierOption)
-        }
+        onChange={(e) => setMonthHandler(e.target.value as MonthBarrierOption)}
       >
         <SelectItem key="CALENDAR">Calendar</SelectItem>
         <SelectItem key="LAST">Last Day</SelectItem>
@@ -121,10 +115,9 @@ export const SettingsForm = ({
       )}
       <Select
         label="Theme"
-        selectedKeys={themeState ? [themeState] : []}
+        selectedKeys={mounted ? [theme ?? "system"] : []}
         onChange={(e) => setTheme(e.target.value)}
-        isLoading={!themeState}
-        suppressHydrationWarning
+        isLoading={!mounted}
       >
         <SelectItem key="system">System</SelectItem>
         <SelectItem key="dark">Dark</SelectItem>

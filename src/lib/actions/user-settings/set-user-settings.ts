@@ -17,7 +17,7 @@ const setUserSettings = protectedAction(
       update: { ...userSettings },
     });
 
-    revalidateTag("userSettings");
+    revalidateTag("userSettings", {});
     revalidatePath("/settings");
     redirect("/");
   },

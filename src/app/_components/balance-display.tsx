@@ -16,7 +16,10 @@ export const BalanceDisplay = ({
     <Tooltip content={tooltip} placement="bottom" hidden={!tooltip}>
       <div className="flex flex-col items-center text-xl font-bold">
         <span className="text-xs font-semibold">{label}</span>
-        <span className={amount >= 0 ? "text-blue-200" : "text-red-200"}>
+        <span
+          className={amount >= 0 ? "text-blue-200" : "text-red-200"}
+          suppressHydrationWarning
+        >
           {formatAsGBP(amount, false, true)}
         </span>
       </div>
