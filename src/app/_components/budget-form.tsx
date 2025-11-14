@@ -47,26 +47,26 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
 
   const [budgetModalOpen, setBudgetModalOpen] = useState(false);
   const [removeWarningOpen, setRemoveWarningOpen] = useState(false);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] =
     useState<SpendingCategory | null>(null);
   const [singleMonthOnly, setSingleMonthOnly] = useState(false);
 
-  const [direction, setDirection] = useState("");
+  const [direction, setDirection] = useState<string | null>(null);
 
-  const formCategory = selectedCategory || category;
+  const formCategory = selectedCategory ?? category;
   const formAmount =
-    amount ||
+    amount ??
     (existingBudget?.amount
       ? Math.abs(existingBudget?.amount ?? 0).toString()
       : "");
   const formDirection =
-    direction || ((existingBudget?.amount ?? 0) > 0 ? "income" : "expense");
+    direction ?? ((existingBudget?.amount ?? 0) > 0 ? "income" : "expense");
 
   const onClose = () => {
     setBudgetModalOpen(false);
-    setAmount("");
-    setDirection("");
+    setAmount(null);
+    setDirection(null);
     setSelectedCategory(null);
     setSingleMonthOnly(false);
   };
