@@ -21,7 +21,7 @@ COPY tailwind.config.ts .
 # Uncomment the following line to disable telemetry at build time
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npx prisma generate
+RUN npx prisma@6.6.0 generate
 
 # Build Next.js based on the preferred package manager
 RUN npm run build
