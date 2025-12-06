@@ -192,4 +192,5 @@ export const CategoryIcons: Partial<Record<SpendingCategory, IconType>> = {
   PETS: FaCat,
   INSURANCE: FaShieldAlt,
   FAMILY: MdFamilyRestroom,
+  GENERAL: FaMoneyBill,
 };
