@@ -1,12 +1,13 @@
 import { IconType } from "react-icons";
 import { BiSolidDonateHeart, BiSolidParty } from "react-icons/bi";
 import { BsEnvelopePaperFill, BsHouseUpFill } from "react-icons/bs";
-import { FaCoffee, FaRunning } from "react-icons/fa";
+import { FaCoffee, FaRunning, FaShieldAlt } from "react-icons/fa";
 import {
   FaBagShopping,
   FaBurger,
   FaCar,
   FaCarrot,
+  FaCat,
   FaChurch,
   FaCreditCard,
   FaGasPump,
@@ -24,7 +25,7 @@ import {
 } from "react-icons/fa6";
 import { GiHealthNormal } from "react-icons/gi";
 import { IoPricetag } from "react-icons/io5";
-import { MdPaid, MdSubscriptions } from "react-icons/md";
+import { MdFamilyRestroom, MdPaid, MdSubscriptions } from "react-icons/md";
 
 export interface Accounts {
   accounts: {
@@ -188,4 +189,7 @@ export const CategoryIcons: Partial<Record<SpendingCategory, IconType>> = {
   CLOTHES: FaShirt,
   COFFEE: FaCoffee,
   MEDICAL: GiHealthNormal,
+  PETS: FaCat,
+  INSURANCE: FaShieldAlt,
+  FAMILY: MdFamilyRestroom,
 };
