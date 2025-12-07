@@ -65,13 +65,11 @@ export default function FeedEntry({ feedItem, orderedCategories }: Props) {
         </div>
         <div className="flex justify-between text-xs text-foreground-500">
           <div className="flex gap-3">
-            <div className="flex items-center gap-1">
-              {CategoryIcon && <CategoryIcon size={12} />}
-              <div className="font-bold capitalize">
-                {optimisticFeedItem.spendingCategory
-                  .replaceAll("_", " ")
-                  .toLowerCase()}
-              </div>
+            <div className="flex items-center gap-1 font-bold capitalize">
+              {CategoryIcon && <CategoryIcon size={10} />}
+              {optimisticFeedItem.spendingCategory
+                .replaceAll("_", " ")
+                .toLowerCase()}
             </div>
             <div>{optimisticFeedItem.reference}</div>
           </div>
