@@ -2,7 +2,11 @@
 
 import setCategory from "@/lib/actions/set-category";
 import { formatAsGBP } from "@/lib/currency-format";
-import { SpendingCategory, Transactions } from "@/lib/starling-types";
+import {
+  CategoryIcons,
+  SpendingCategory,
+  Transactions,
+} from "@/lib/starling-types";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
@@ -37,6 +41,8 @@ export default function FeedEntry({ feedItem, orderedCategories }: Props) {
     await setCategory({ category, transactionId: feedItem.feedItemUid });
   };
 
+  const CategoryIcon = CategoryIcons[optimisticFeedItem.spendingCategory];
+
   return (
     <>
       <div
@@ -59,10 +65,13 @@ export default function FeedEntry({ feedItem, orderedCategories }: Props) {
         </div>
         <div className="flex justify-between text-xs text-foreground-500">
           <div className="flex gap-3">
-            <div className="font-bold capitalize">
-              {optimisticFeedItem.spendingCategory
-                .replaceAll("_", " ")
-                .toLowerCase()}
+            <div className="flex items-center gap-1">
+              {CategoryIcon && <CategoryIcon size={12} />}
+              <div className="font-bold capitalize">
+                {optimisticFeedItem.spendingCategory
+                  .replaceAll("_", " ")
+                  .toLowerCase()}
+              </div>
             </div>
             <div>{optimisticFeedItem.reference}</div>
           </div>
