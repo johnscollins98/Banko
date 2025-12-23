@@ -50,7 +50,11 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
   const [amount, setAmount] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] =
     useState<SpendingCategory | null>(null);
-  const [singleMonthOnly, setSingleMonthOnly] = useState(false);
+
+  const [singleMonthOnly, setSingleMonthOnly] = useState<null | boolean>(null);
+
+  const formSingleMonthOnly =
+    singleMonthOnly ?? existingBudget?.isOverride ?? false;
 
   const [direction, setDirection] = useState<string | null>(null);
 
@@ -68,7 +72,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
     setAmount(null);
     setDirection(null);
     setSelectedCategory(null);
-    setSingleMonthOnly(false);
+    setSingleMonthOnly(null);
   };
 
   const setBudgetSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
@@ -81,7 +85,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
       await setBudget({
         amount: parseFloat(formAmount) * multiplier,
         category: formCategory,
-        date: singleMonthOnly ? startDate : undefined,
+        date: formSingleMonthOnly ? startDate : undefined,
       });
 
       onClose();
@@ -206,7 +210,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
                   <Checkbox
                     name="single-month"
                     id="single-month"
-                    isSelected={singleMonthOnly}
+                    isSelected={formSingleMonthOnly}
                     onValueChange={setSingleMonthOnly}
                   />
                 </div>
