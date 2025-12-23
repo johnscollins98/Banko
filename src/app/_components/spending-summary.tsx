@@ -219,11 +219,13 @@ const CategoryChip = ({
 }: {
   category: SpendingCategoryWithTotal;
   totals: Totals;
-  budgets: Budget[];
+  budgets: BudgetsWithOverride;
   filterBy: SpendingCategory | null;
   setFilterBy: (v: SpendingCategory | null) => void;
 }) => {
-  const budget = budgets.find((b) => b.category === category)?.amount;
+  const budgetObj = budgets.find((b) => b.category === category);
+  const budget = budgetObj?.amount;
+  const isOverride = budgetObj?.isOverride ?? false;
   const total = (totals[category] ?? 0) / 100;
 
   const searchParamKey = category === "total" ? "" : category;
@@ -248,6 +250,9 @@ const CategoryChip = ({
           ? ` / ${budgetString} (${percentOfBudget.toLocaleString(undefined, { style: "percent" })})`
           : ""}
       </div>
+      {isOverride ? (
+        <div className="text-xs italic">* Budget Override Applied</div>
+      ) : null}
     </div>
   );
 
@@ -288,15 +293,19 @@ const CategoryChip = ({
             }}
           >
             <div className="box-border flex items-center gap-2 overflow-hidden whitespace-nowrap px-3 capitalize">
-              <span className="items-center">
-                {CategoryIcon ? <CategoryIcon size="16" /> : categoryName}
+              <span className="flex items-center">
+                {CategoryIcon ? <CategoryIcon size="16" /> : categoryName}{" "}
+                {isOverride ? (
+                  <div className="self-start text-sm">*</div>
+                ) : null}
               </span>
               <span className="flex items-center">{totalString}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 capitalize">
-            <span className="items-center">
-              {CategoryIcon ? <CategoryIcon size="16" /> : categoryName}
+            <span className="flex items-center">
+              {CategoryIcon ? <CategoryIcon size="16" /> : categoryName}{" "}
+              {isOverride ? <div className="self-start text-sm">*</div> : null}
             </span>
             <span className="items-center">{totalString}</span>
           </div>
