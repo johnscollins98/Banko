@@ -172,9 +172,6 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
                       if (isNaN(vFloat)) {
                         return "Must be a number.";
                       }
-                      if (parseFloat(v) <= 0) {
-                        return "Must be a positive number.";
-                      }
                     }}
                     size="lg"
                     label="Amount"
