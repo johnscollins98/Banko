@@ -10,10 +10,11 @@ export const setBudget = protectedAction(
   z.object({
     amount: z.number(),
     category: z.enum([...SPENDING_CATEGORIES, "total"]),
-    date: z.date().optional(),
+    date: z.date(),
+    isOverride: z.boolean(),
   }),
-  async ({ amount, category, date }, { user }) => {
-    if (date) {
+  async ({ amount, category, date, isOverride }, { user }) => {
+    if (isOverride) {
       await db.budgetOverride.upsert({
         create: {
           amount,
@@ -39,14 +40,16 @@ export const setBudget = protectedAction(
           amount,
           category,
           userId: user.id,
+          date,
         },
         update: {
           amount,
         },
         where: {
-          userId_category: {
+          userId_category_date: {
             category,
             userId: user.id,
+            date,
           },
         },
       });
@@ -60,10 +63,11 @@ export const setBudget = protectedAction(
 export const removeBudget = protectedAction(
   z.object({
     category: z.enum([...SPENDING_CATEGORIES, "total"]),
-    date: z.date().optional(),
+    date: z.date(),
+    isOverride: z.boolean(),
   }),
-  async ({ category, date }, { user }) => {
-    if (date) {
+  async ({ category, date, isOverride }, { user }) => {
+    if (isOverride) {
       const res = await db.budgetOverride.deleteMany({
         where: {
           category,
@@ -81,7 +85,11 @@ export const removeBudget = protectedAction(
 
     await db.budget.delete({
       where: {
-        userId_category: { category, userId: user.id },
+        userId_category_date: {
+          category,
+          userId: user.id,
+          date,
+        },
       },
     });
 

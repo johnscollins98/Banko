@@ -1,9 +1,11 @@
 import { unstable_cache } from "next/cache";
 import { db } from "../db";
 
-export const getDefaultBudgetsForUser = (userId: string) => {
+export const getDefaultBudgetsForUser = (userId: string, startDate: Date) => {
   return db.budget.findMany({
-    where: { userId: userId },
+    where: { userId: userId, date: { lte: startDate } },
+    orderBy: { date: "desc" },
+    distinct: ["category"],
   });
 };
 

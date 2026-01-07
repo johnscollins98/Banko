@@ -42,7 +42,7 @@ export default async function Home(props: {
   const { start, end } = await datesPromise;
   const { user, starling, accountId, defaultCategory } = await getUserAccount();
 
-  const defaultBudgets = await getDefaultBudgetsForUserCached(user.id);
+  const defaultBudgets = await getDefaultBudgetsForUserCached(user.id, start);
   const budgetOverrides = await getBudgetOverridesForUserCached(user.id, start);
 
   const budgets = [...SPENDING_CATEGORIES, "total"]

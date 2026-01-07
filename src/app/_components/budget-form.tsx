@@ -85,7 +85,8 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
       await setBudget({
         amount: parseFloat(formAmount) * multiplier,
         category: formCategory,
-        date: formSingleMonthOnly ? startDate : undefined,
+        date: startDate,
+        isOverride: formSingleMonthOnly,
       });
 
       onClose();
@@ -98,6 +99,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
       await removeBudget({
         category,
         date: startDate,
+        isOverride: formSingleMonthOnly,
       });
       setRemoveWarningOpen(false);
     });
@@ -106,11 +108,12 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
   return (
     <>
       <div className="flex items-center justify-end gap-2">
-        {existingBudget && (
-          <Button onPress={() => setRemoveWarningOpen(true)}>
-            {existingBudget?.isOverride ? "Use Default" : "Remove"} Budget
-          </Button>
-        )}
+        {existingBudget &&
+          new Date(existingBudget?.date).valueOf() === startDate.valueOf() && (
+            <Button onPress={() => setRemoveWarningOpen(true)}>
+              {existingBudget?.isOverride ? "Use Default" : "Remove"} Budget
+            </Button>
+          )}
         <Button onPress={() => setBudgetModalOpen(true)}>
           {existingBudget ? "Update" : "Add"} Budget
         </Button>
