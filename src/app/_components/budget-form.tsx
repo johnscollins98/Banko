@@ -21,6 +21,7 @@ import {
   useOptimistic,
   useState,
 } from "react";
+import { ButtonLink } from "./button-link";
 
 export interface Props {
   budgets: (Budget & { isOverride?: boolean })[];
@@ -108,6 +109,9 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
   return (
     <>
       <div className="flex items-center justify-end gap-2">
+        <ButtonLink href={`/budgets?category=${category}`} className="w-auto">
+          Manage Budgets
+        </ButtonLink>
         {existingBudget &&
           new Date(existingBudget?.date).valueOf() === startDate.valueOf() && (
             <Button onPress={() => setRemoveWarningOpen(true)}>
