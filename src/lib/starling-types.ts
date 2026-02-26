@@ -1,7 +1,7 @@
 import { IconType } from "react-icons";
 import { BiSolidDonateHeart, BiSolidParty } from "react-icons/bi";
 import { BsEnvelopePaperFill, BsHouseUpFill } from "react-icons/bs";
-import { FaCoffee, FaRunning, FaShieldAlt } from "react-icons/fa";
+import { FaCoffee, FaPhoneAlt, FaRunning, FaShieldAlt } from "react-icons/fa";
 import {
   FaBagShopping,
   FaBurger,
@@ -193,4 +193,5 @@ export const CategoryIcons: Partial<Record<SpendingCategory, IconType>> = {
   INSURANCE: FaShieldAlt,
   FAMILY: MdFamilyRestroom,
   GENERAL: FaMoneyBill,
+  PHONE_AND_INTERNET: FaPhoneAlt,
 };
