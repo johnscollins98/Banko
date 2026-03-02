@@ -11,6 +11,7 @@ import { categorySchema } from "./spending-summary";
 
 interface Props {
   feedItems: Transactions["feedItems"];
+  settleUpProfile: { settleUpLink: string; status: string };
 }
 
 type FeedItemGroups = Record<
@@ -18,7 +19,7 @@ type FeedItemGroups = Record<
   { total: number; items: Transactions["feedItems"] }
 >;
 
-export const TransactionFeed = ({ feedItems }: Props) => {
+export const TransactionFeed = ({ feedItems, settleUpProfile }: Props) => {
   const searchParams = useSearchParams();
   const category =
     categorySchema.safeParse(searchParams.get("filterBy")).data ?? null;
@@ -80,6 +81,7 @@ export const TransactionFeed = ({ feedItems }: Props) => {
                 key={feedItem.feedItemUid}
                 feedItem={feedItem}
                 orderedCategories={categories}
+                settleUpProfile={settleUpProfile}
               />
             ))}
           </div>

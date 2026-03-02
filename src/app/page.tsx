@@ -40,7 +40,8 @@ export default async function Home(props: {
   const datesPromise = getDates(offset);
 
   const { start, end } = await datesPromise;
-  const { user, starling, accountId, defaultCategory } = await getUserAccount();
+  const { user, starling, accountId, defaultCategory, settleUpProfile } =
+    await getUserAccount();
 
   const defaultBudgets = await getDefaultBudgetsForUserCached(user.id, start);
   const budgetOverrides = await getBudgetOverridesForUserCached(user.id, start);
@@ -110,7 +111,10 @@ export default async function Home(props: {
         </div>
       </Navbar>
       <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-foreground-100 pt-4 dark:bg-background">
-        <TransactionFeed feedItems={feedItems} />
+        <TransactionFeed
+          feedItems={feedItems}
+          settleUpProfile={settleUpProfile}
+        />
       </div>
     </main>
   );

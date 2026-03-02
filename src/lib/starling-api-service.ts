@@ -42,6 +42,14 @@ export class Starling {
     return res.json();
   }
 
+  async getSettleUpProfile(): Promise<{
+    settleUpLink: string;
+    status: string;
+  }> {
+    const res = await this.fetch(`settle-up/profile`);
+    return res.json();
+  }
+
   async setCategory(
     accountId: string,
     defaultCategory: string,

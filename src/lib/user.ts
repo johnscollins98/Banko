@@ -35,6 +35,7 @@ const getUserAccount = cache(async () => {
   const accounts = await starling.getAccounts();
   const accountId = accounts.accounts[0]?.accountUid;
   const defaultCategory = accounts.accounts[0]?.defaultCategory;
+  const settleUpProfile = await starling.getSettleUpProfile();
 
   if (!accountId || !defaultCategory) {
     redirect("/forbidden");
@@ -45,6 +46,7 @@ const getUserAccount = cache(async () => {
     starling,
     accountId,
     defaultCategory,
+    settleUpProfile,
   };
 });
 
