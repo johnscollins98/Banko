@@ -10,7 +10,9 @@ import {
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
+import { addToast } from "@heroui/react";
 import { startTransition, useOptimistic, useState } from "react";
+import { FaLink, FaShare } from "react-icons/fa6";
 import DateDisplay from "./date";
 import TimeDisplay from "./time";
 
@@ -57,18 +59,35 @@ export default function FeedEntry({
     }),
   );
 
-  const onSettleUp = async () => {
+  const onSettleUp = async (share: boolean) => {
     const url = new URL(`https://${settleUpProfile.settleUpLink}`);
     url.searchParams.set("amount", settleUpAmount);
     url.searchParams.set("message", settleUpMessage);
 
-    try {
-      await navigator.share({
-        url: url.toString(),
-        text: `Asking for £${settleUpAmount} for ${settleUpMessage}`,
-        title: `Asking for £${settleUpAmount} for ${settleUpMessage}`,
+    if (share && navigator.share) {
+      try {
+        await navigator.share({
+          url: url.toString(),
+          text: `Asking for £${settleUpAmount} for ${settleUpMessage}`,
+          title: `Asking for £${settleUpAmount} for ${settleUpMessage}`,
+        });
+        addToast({
+          title: "Shared successfully",
+          color: "success",
+        });
+      } catch {
+        addToast({
+          title: "Failed to share",
+          color: "danger",
+        });
+      }
+    } else {
+      await navigator.clipboard.writeText(url.toString());
+      addToast({
+        title: "Copied to clipboard",
+        color: "success",
       });
-    } catch {}
+    }
   };
 
   const CategoryIcon = CategoryIcons[optimisticFeedItem.spendingCategory];
@@ -116,7 +135,7 @@ export default function FeedEntry({
         size="sm"
       >
         <ModalContent>
-          <ModalHeader>Select a category...</ModalHeader>
+          <ModalHeader>{settleUp ? "Settle Up" : "Set Category"}</ModalHeader>
           <ModalBody>
             <Button onPress={() => setSettleUp(!settleUp)}>
               {settleUp ? "Category" : "Settle Up"}
@@ -135,9 +154,23 @@ export default function FeedEntry({
                   onChange={(e) => setSettleUpMessage(e.target.value)}
                   size="lg"
                 />
-                <Button fullWidth onPress={onSettleUp}>
-                  Share
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    className="flex flex-1 items-center gap-2"
+                    onPress={() => onSettleUp(false)}
+                  >
+                    <FaLink />
+                    Copy Link
+                  </Button>
+                  <Button
+                    className="flex flex-1 items-center gap-2"
+                    color="primary"
+                    onPress={() => onSettleUp(true)}
+                  >
+                    <FaShare />
+                    Share
+                  </Button>
+                </div>
               </div>
             )}
             {!settleUp && (
