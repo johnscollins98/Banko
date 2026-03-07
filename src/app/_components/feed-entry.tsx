@@ -12,7 +12,7 @@ import { Input } from "@heroui/input";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
 import { addToast } from "@heroui/react";
 import { startTransition, useOptimistic, useState } from "react";
-import { FaLink, FaShare } from "react-icons/fa6";
+import { FaChevronLeft, FaLink, FaShare } from "react-icons/fa6";
 import DateDisplay from "./date";
 import TimeDisplay from "./time";
 
@@ -135,11 +135,23 @@ export default function FeedEntry({
         size="sm"
       >
         <ModalContent>
-          <ModalHeader>{settleUp ? "Settle Up" : "Set Category"}</ModalHeader>
+          <ModalHeader className="flex items-baseline gap-2">
+            {settleUp && (
+              <Button
+                isIconOnly
+                onPress={() => setSettleUp(false)}
+                size="sm"
+                variant="light"
+              >
+                <FaChevronLeft />
+              </Button>
+            )}{" "}
+            {settleUp ? "Settle Up" : "Set Category"}
+          </ModalHeader>
           <ModalBody>
-            <Button onPress={() => setSettleUp(!settleUp)}>
-              {settleUp ? "Category" : "Settle Up"}
-            </Button>
+            {!settleUp && (
+              <Button onPress={() => setSettleUp(!settleUp)}>Settle Up</Button>
+            )}
             {settleUp && (
               <div className="flex flex-col gap-4">
                 <Input
