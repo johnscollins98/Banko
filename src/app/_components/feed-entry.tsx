@@ -52,12 +52,36 @@ export default function FeedEntry({
   const [settleUpMessage, setSettleUpMessage] = useState(
     feedItem.counterPartyName,
   );
+  const [split, setSplit] = useState<string>("1");
+
   const [settleUpAmount, setSettleUpAmount] = useState(
     (feedItem.amount.minorUnits / 2 / 100).toLocaleString(undefined, {
       maximumFractionDigits: 2,
       minimumFractionDigits: 2,
     }),
   );
+
+  const onSetAmount = (amount: string) => {
+    setSettleUpAmount(amount);
+    setSplit("");
+  };
+
+  const onSetSplit = (split: string) => {
+    const splitNum = parseFloat(split) + 1;
+
+    if (!isNaN(splitNum) && splitNum > 0) {
+      const newAmount = (
+        feedItem.amount.minorUnits /
+        splitNum /
+        100
+      ).toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      });
+      setSettleUpAmount(newAmount);
+    }
+    setSplit(split);
+  };
 
   const onSettleUp = async (share: boolean) => {
     const url = new URL(`https://${settleUpProfile.settleUpLink}`);
@@ -154,10 +178,42 @@ export default function FeedEntry({
             )}
             {settleUp && (
               <div className="flex flex-col gap-4">
+                <div className="flex items-baseline gap-4">
+                  <div className="text-sm text-foreground-500">
+                    Transaction Amount
+                  </div>
+                  <div className="text-lg font-bold">
+                    {formatAsGBP(
+                      feedItem.amount.minorUnits / 100,
+                      false,
+                      false,
+                    )}
+                  </div>
+                </div>
                 <Input
-                  label="Amount"
+                  label="Split with X people"
+                  value={split}
+                  type="number"
+                  validate={(e) => {
+                    const value = parseFloat(e);
+
+                    if (e === "") {
+                      return true;
+                    }
+
+                    if (isNaN(value) || value < 0) {
+                      return "Please enter a valid positive number";
+                    }
+
+                    return true;
+                  }}
+                  onChange={(e) => onSetSplit(e.target.value)}
+                  size="lg"
+                />
+                <Input
+                  label="Requested Amount"
                   value={settleUpAmount}
-                  onChange={(e) => setSettleUpAmount(e.target.value)}
+                  onChange={(e) => onSetAmount(e.target.value)}
                   size="lg"
                 />
                 <Input
