@@ -92,8 +92,8 @@ export default function FeedEntry({
     url.searchParams.set("amount", settleUpAmount);
     url.searchParams.set("message", settleUpMessage);
 
-    if (share && navigator.share) {
-      try {
+    try {
+      if (share && navigator.share) {
         await navigator.share({
           url: url.toString(),
           text: `Asking for £${settleUpAmount} for ${settleUpMessage}`,
@@ -103,17 +103,17 @@ export default function FeedEntry({
           title: "Shared successfully",
           color: "success",
         });
-      } catch {
+      } else {
+        await navigator.clipboard.writeText(url.toString());
         addToast({
-          title: "Failed to share",
-          color: "danger",
+          title: "Copied to clipboard",
+          color: "success",
         });
       }
-    } else {
-      await navigator.clipboard.writeText(url.toString());
+    } catch {
       addToast({
-        title: "Copied to clipboard",
-        color: "success",
+        title: "Failed to share",
+        color: "danger",
       });
     }
   };

@@ -25,6 +25,29 @@
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
     padding-left: max(1rem, env(safe-area-inset-left));
   }
+
+  .mt-safe {
+    margin-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .mr-safe {
+    margin-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .mb-safe {
+    margin-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .ml-safe {
+    margin-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .m-safe {
+    margin-top: max(1rem, env(safe-area-inset-top));
+    margin-right: max(1rem, env(safe-area-inset-right));
+    margin-bottom: max(1rem, env(safe-area-inset-bottom));
+    margin-left: max(1rem, env(safe-area-inset-left));
+  }
 }
 
 html {

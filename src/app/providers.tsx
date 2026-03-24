@@ -8,7 +8,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <HeroUIProvider>
       <ThemeProvider attribute="class" enableSystem defaultTheme="system">
-        <ToastProvider toastProps={{ timeout: 2000 }} />
+        <ToastProvider
+          toastProps={{
+            timeout: 2000,
+            classNames: { base: "mt-safe" },
+            shouldShowTimeoutProgress: true,
+          }}
+          placement="top-center"
+        />
         {children}
       </ThemeProvider>
     </HeroUIProvider>
