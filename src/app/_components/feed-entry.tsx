@@ -36,19 +36,6 @@ export default function FeedEntry({
   const [modalOpen, setModalOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("");
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setCategoryFilter("");
-  };
-
-  const updateCategoryHandler = async (category: SpendingCategory) => {
-    startTransition(() => {
-      updateOptimisticFeedItem({ ...feedItem, spendingCategory: category });
-    });
-    closeModal();
-    await setCategory({ category, transactionId: feedItem.feedItemUid });
-  };
-
   const [settleUp, setSettleUp] = useState(false);
   const [settleUpMessage, setSettleUpMessage] = useState(
     feedItem.counterPartyName,
@@ -61,6 +48,22 @@ export default function FeedEntry({
       minimumFractionDigits: 2,
     }),
   );
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setCategoryFilter("");
+    setSettleUp(false);
+    setSettleUpMessage(feedItem.counterPartyName);
+    onSetSplit("1");
+  };
+
+  const updateCategoryHandler = async (category: SpendingCategory) => {
+    startTransition(() => {
+      updateOptimisticFeedItem({ ...feedItem, spendingCategory: category });
+    });
+    closeModal();
+    await setCategory({ category, transactionId: feedItem.feedItemUid });
+  };
 
   const onSetAmount = (amount: string) => {
     setSettleUpAmount(amount);
