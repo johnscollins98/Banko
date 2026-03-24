@@ -9,11 +9,12 @@ import {
 } from "@/lib/starling-types";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
+import { ModalBody, ModalContent, ModalHeader } from "@heroui/modal";
 import { addToast } from "@heroui/react";
 import { startTransition, useOptimistic, useState } from "react";
 import { FaChevronLeft, FaLink, FaShare } from "react-icons/fa6";
 import DateDisplay from "./date";
+import SafeModal from "./safe-modal";
 import TimeDisplay from "./time";
 
 interface Props {
@@ -152,11 +153,12 @@ export default function FeedEntry({
           </div>
         </div>
       </div>
-      <Modal
+      <SafeModal
         isOpen={modalOpen}
         onClose={closeModal}
         scrollBehavior="inside"
         size="sm"
+        placement="bottom-center"
       >
         <ModalContent>
           <ModalHeader className="flex items-baseline gap-2">
@@ -272,7 +274,7 @@ export default function FeedEntry({
             )}
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </SafeModal>
     </>
   );
 }

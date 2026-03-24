@@ -4,7 +4,6 @@ import { removeBudget } from "@/lib/actions/set-budget";
 import { SpendingCategory } from "@/lib/starling-types";
 import { Button } from "@heroui/button";
 import {
-  Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
@@ -12,6 +11,7 @@ import {
 } from "@heroui/modal";
 import { Budget } from "@prisma/client";
 import { useTransition } from "react";
+import SafeModal from "./safe-modal";
 
 export type BudgetWithOverride = Budget & { isOverride?: boolean };
 
@@ -43,7 +43,7 @@ export const DeleteBudgetModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <SafeModal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
         <ModalHeader>Delete Budget</ModalHeader>
         <ModalBody>
@@ -67,7 +67,7 @@ export const DeleteBudgetModal = ({
           </div>
         </ModalFooter>
       </ModalContent>
-    </Modal>
+    </SafeModal>
   );
 };
 

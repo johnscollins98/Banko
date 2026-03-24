@@ -7,7 +7,6 @@ import { Button } from "@heroui/button";
 import { Checkbox } from "@heroui/checkbox";
 import { Input } from "@heroui/input";
 import {
-  Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
@@ -22,6 +21,7 @@ import {
   useState,
 } from "react";
 import { ButtonLink } from "./button-link";
+import SafeModal from "./safe-modal";
 
 export interface Props {
   budgets: (Budget & { isOverride?: boolean })[];
@@ -122,7 +122,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
           {existingBudget ? "Update" : "Add"} Budget
         </Button>
       </div>
-      <Modal isOpen={removeWarningOpen} onClose={onClose}>
+      <SafeModal isOpen={removeWarningOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
             {existingBudget?.isOverride ? "Use Default" : "Remove"} Budget
@@ -148,8 +148,11 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
             </div>
           </ModalFooter>
         </ModalContent>
-      </Modal>
-      <Modal isOpen={budgetModalOpen} onClose={() => setBudgetModalOpen(false)}>
+      </SafeModal>
+      <SafeModal
+        isOpen={budgetModalOpen}
+        onClose={() => setBudgetModalOpen(false)}
+      >
         <ModalContent>
           <form
             onSubmit={setBudgetSubmitHandler}
@@ -233,7 +236,7 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
             </ModalFooter>
           </form>
         </ModalContent>
-      </Modal>
+      </SafeModal>
     </>
   );
 };

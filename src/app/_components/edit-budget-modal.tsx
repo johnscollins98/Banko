@@ -5,7 +5,6 @@ import { SpendingCategory } from "@/lib/starling-types";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import {
-  Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
@@ -14,6 +13,7 @@ import {
 import { Select, SelectItem } from "@heroui/react";
 import { Budget } from "@prisma/client";
 import { FormEvent, useState, useTransition } from "react";
+import SafeModal from "./safe-modal";
 
 export type BudgetWithOverride = Budget & { isOverride?: boolean };
 
@@ -64,7 +64,7 @@ export const EditBudgetModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
+    <SafeModal isOpen={isOpen} onClose={handleClose}>
       <ModalContent>
         <ModalHeader>Edit Budget</ModalHeader>
         <form onSubmit={onSave}>
@@ -106,7 +106,7 @@ export const EditBudgetModal = ({
           </ModalFooter>
         </form>
       </ModalContent>
-    </Modal>
+    </SafeModal>
   );
 };
 
