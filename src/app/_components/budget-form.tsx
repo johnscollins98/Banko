@@ -5,6 +5,12 @@ import { SPENDING_CATEGORIES, SpendingCategory } from "@/lib/starling-types";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Button } from "@heroui/button";
 import { Checkbox } from "@heroui/checkbox";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@heroui/dropdown";
 import { Input } from "@heroui/input";
 import {
   ModalBody,
@@ -14,13 +20,13 @@ import {
 } from "@heroui/modal";
 import { Select, SelectItem } from "@heroui/react";
 import { Budget } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import {
   FormEventHandler,
   startTransition,
   useOptimistic,
   useState,
 } from "react";
-import { ButtonLink } from "./button-link";
 import SafeModal from "./safe-modal";
 
 export interface Props {
@@ -39,6 +45,7 @@ const formatCategoryString = (c: string) => {
 };
 
 export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
+  const router = useRouter();
   const category = (filterBy as SpendingCategory) || "total";
   const existingBudget = budgets.find((b) => b.category === category);
   const categoryString = formatCategoryString(category);
@@ -67,6 +74,10 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
       : "");
   const formDirection =
     direction ?? ((existingBudget?.amount ?? 0) > 0 ? "income" : "expense");
+
+  const showRemoveOption =
+    existingBudget &&
+    new Date(existingBudget?.date).valueOf() === startDate.valueOf();
 
   const onClose = () => {
     setBudgetModalOpen(false);
@@ -108,20 +119,31 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
 
   return (
     <>
-      <div className="flex items-center justify-end gap-2">
-        <ButtonLink href={`/budgets?category=${category}`} className="w-auto">
-          Manage Budgets
-        </ButtonLink>
-        {existingBudget &&
-          new Date(existingBudget?.date).valueOf() === startDate.valueOf() && (
-            <Button onPress={() => setRemoveWarningOpen(true)}>
-              {existingBudget?.isOverride ? "Use Default" : "Remove"} Budget
-            </Button>
-          )}
-        <Button onPress={() => setBudgetModalOpen(true)}>
-          {existingBudget ? "Update" : "Add"} Budget
-        </Button>
-      </div>
+      <Dropdown placement="top-start">
+        <DropdownTrigger>
+          <Button>Budgets</Button>
+        </DropdownTrigger>
+        <DropdownMenu>
+          <DropdownItem
+            key="manage"
+            onPress={() => router.push(`/budgets?category=${category}`)}
+          >
+            Manage All
+          </DropdownItem>
+          {showRemoveOption ? (
+            <DropdownItem
+              key="remove"
+              onPress={() => setRemoveWarningOpen(true)}
+              color="danger"
+            >
+              {existingBudget?.isOverride ? "Use Default" : "Remove"}
+            </DropdownItem>
+          ) : null}
+          <DropdownItem key="update" onPress={() => setBudgetModalOpen(true)}>
+            {existingBudget ? "Update" : "Add"}
+          </DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
       <SafeModal isOpen={removeWarningOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
