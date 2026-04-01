@@ -107,6 +107,7 @@ export default async function Home(props: {
             startDate={start}
             totals={totals}
             offset={offsetNum}
+            transactions={feedItems}
           />
         </div>
       </Navbar>

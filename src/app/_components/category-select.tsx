@@ -4,7 +4,7 @@ import { SPENDING_CATEGORIES } from "@/lib/starling-types";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { useRouter } from "next/navigation";
 
-const formatCategoryString = (c: string) =>
+export const formatCategoryString = (c: string) =>
   c
     .toLocaleLowerCase()
     .replaceAll("_", " ")

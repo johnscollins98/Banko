@@ -5,6 +5,7 @@ import {
   CategoryIcons,
   SPENDING_CATEGORIES,
   SpendingCategory,
+  Transactions,
 } from "@/lib/starling-types";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import { Progress } from "@heroui/progress";
@@ -12,6 +13,7 @@ import { Tooltip } from "@heroui/tooltip";
 import { Budget } from "@prisma/client";
 import { usePathname, useSearchParams } from "next/navigation";
 import { z } from "zod";
+import { AutoCategoriseForm } from "./auto-categorise-form";
 import { BudgetForm } from "./budget-form";
 import { CashFlowOverview } from "./cash-flow-overview";
 
@@ -27,6 +29,7 @@ interface Props {
   budgets: BudgetsWithOverride;
   startDate: Date;
   offset: number;
+  transactions: Transactions["feedItems"];
 }
 
 export const categorySchema = z.enum(SPENDING_CATEGORIES);
@@ -36,6 +39,7 @@ export default function SpendingSummary({
   budgets,
   startDate,
   offset,
+  transactions,
 }: Props) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -95,11 +99,17 @@ export default function SpendingSummary({
             filterBy={filterBy}
           />
           <OverallBudgetPercent totals={totals} budgets={budgets} />
-          <BudgetForm
-            budgets={budgets}
-            filterBy={filterBy}
-            startDate={startDate}
-          />
+          <div className="flex items-center justify-between">
+            <AutoCategoriseForm
+              currentTransactions={transactions}
+              offset={offset}
+            />
+            <BudgetForm
+              budgets={budgets}
+              filterBy={filterBy}
+              startDate={startDate}
+            />
+          </div>
         </div>
       </AccordionItem>
     </Accordion>
