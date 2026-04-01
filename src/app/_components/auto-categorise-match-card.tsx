@@ -19,6 +19,7 @@ export const AutoCategoriseMatchCard = ({
   return (
     <Card
       isPressable
+      shadow="none"
       onPress={onToggle}
       className={`border-1 transition-colors ${
         isSelected
