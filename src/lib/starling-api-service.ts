@@ -1,5 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import rateLimit from "axios-rate-limit";
+import Limiter from "bottleneck";
 import {
   Accounts,
   Balance,
@@ -8,27 +7,24 @@ import {
 } from "./starling-types";
 
 export class Starling {
-  private static rateLimitedClient: AxiosInstance | null = null;
+  private static limiter: Limiter | null = null;
+  private apiKey: string;
 
-  constructor(private readonly apiKey: string) {
-    // Initialize shared rate-limited client on first instance
-    if (!Starling.rateLimitedClient) {
-      const axiosInstance = axios.create({
-        baseURL: "https://api.starlingbank.com/api/v2",
-      });
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
 
-      // Apply rate limiting: 5 requests per 1000ms (1 second)
-      Starling.rateLimitedClient = rateLimit(axiosInstance, {
-        limits: [
-          { maxRequests: 5, duration: "1s" }, // 5 requets per second
-          { maxRequests: 1000, duration: "24h" }, // 1000 requests per day
-        ],
+    // Initialize shared rate limiter on first instance
+    if (!Starling.limiter) {
+      Starling.limiter = new Limiter({
+        minTime: 200, // 5 requests per second = 200ms between requests
+        maxConcurrent: 5, // Allow up to 5 concurrent requests
       });
     }
   }
 
   async getAccounts(): Promise<Accounts> {
-    return await this.fetch("accounts");
+    const res = await this.fetch("accounts", { next: { revalidate: 3600 } });
+    return res.json();
   }
 
   async getTransactions(
@@ -43,26 +39,25 @@ export class Starling {
     const endOfDay = new Date(end);
     endOfDay.setHours(23, 59, 59);
 
-    return await this.fetch(
-      `feed/account/${accountId}/category/${defaultCategory}/transactions-between`,
-      {
-        params: {
-          minTransactionTimestamp: start.toISOString(),
-          maxTransactionTimestamp: endOfDay.toISOString(),
-        },
-      },
+    const res = await this.fetch(
+      `feed/account/${accountId}/category/${defaultCategory}/transactions-between?minTransactionTimestamp=${start.toISOString()}&maxTransactionTimestamp=${endOfDay.toISOString()}`,
     );
+    return res.json();
   }
 
   async getBalance(accountId: string): Promise<Balance> {
-    return await this.fetch(`accounts/${accountId}/balance`);
+    const res = await this.fetch(`accounts/${accountId}/balance`);
+    return res.json();
   }
 
   async getSettleUpProfile(): Promise<{
     settleUpLink: string;
     status: string;
   }> {
-    return await this.fetch(`settle-up/profile`);
+    const res = await this.fetch(`settle-up/profile`, {
+      next: { revalidate: 3600 },
+    });
+    return res.json();
   }
 
   async setCategory(
@@ -74,38 +69,40 @@ export class Starling {
     await this.fetch(
       `feed/account/${accountId}/category/${defaultCategory}/${transactionId}/spending-category`,
       {
-        data: {
+        method: "PUT",
+        body: JSON.stringify({
           spendingCategory: category,
           permanentSpendingCategoryUpdate: false,
           previousSpendingCategoryReferencesUpdate: false,
-        },
-        method: "PUT",
+        }),
       },
     );
   }
 
-  private async fetch<TOut>(
+  private async fetch(
     endpoint: string,
-    config?: AxiosRequestConfig,
-  ): Promise<TOut> {
-    try {
-      return (
-        await Starling.rateLimitedClient!(endpoint, {
-          ...config,
+    options?: RequestInit & { next?: { revalidate?: number | false } },
+  ): Promise<Response> {
+    return Starling.limiter!.schedule(async () => {
+      const response = await fetch(
+        `https://api.starlingbank.com/api/v2/${endpoint}`,
+        {
+          ...options,
           headers: {
             Authorization: `Bearer ${this.apiKey}`,
             "Content-Type": "application/json",
-            ...(config?.headers as Record<string, string>),
+            ...options?.headers,
           },
-        })
-      ).data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
+        },
+      );
+
+      if (!response.ok) {
         throw new Error(
-          `Request failed with status ${error.response?.status}: ${error.message}`,
+          `Request failed with status ${response.status}: ${response.statusText}`,
         );
       }
-      throw error;
-    }
+
+      return response;
+    });
   }
 }
