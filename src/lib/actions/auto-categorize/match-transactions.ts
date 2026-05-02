@@ -41,7 +41,7 @@ export function matchTransactionsByRecipientAndReference(
       const amountDifference = Math.abs(prev.amount.minorUnits - currentAmount);
       const percentageTolerance =
         Math.max(Math.abs(prev.amount.minorUnits), Math.abs(currentAmount)) *
-        0.05;
+        0.1; // 10% tolerance
       const fixedTolerance = 500; // £5
       const amountTolerance = Math.max(percentageTolerance, fixedTolerance);
 
