@@ -8,11 +8,11 @@ export interface TransactionMatch {
 
 /**
  * Matches transactions from current month to previous month
- * by comparing recipient, reference, and/or amount.
- * A match requires at least 2 of these 3 criteria to be true:
+ * by comparing recipient, reference, and amount.
+ * A match requires all 3 of these criteria to be true:
  * - recipient name matches
  * - reference matches
- * - amount matches
+ * - amount is within 5% OR ±£5 (500 minor units) of the other transaction
  * Returns only matches where categories differ
  */
 export function matchTransactionsByRecipientAndReference(
@@ -22,31 +22,43 @@ export function matchTransactionsByRecipientAndReference(
   const matches: TransactionMatch[] = [];
 
   for (const current of currentTransactions) {
-    // Look for a previous transaction matching at least 2 of: recipient, reference, amount
-    const previous = previousTransactions.find((prev) => {
-      const recipientMatches =
-        prev.counterPartyName?.toLowerCase() ===
-        current.counterPartyName?.toLowerCase();
-      const referenceMatches =
-        prev.reference?.toLowerCase() === current.reference?.toLowerCase();
-      const amountMatches =
-        prev.amount.minorUnits === current.amount.minorUnits;
+    const currentRecipient = current.counterPartyName?.toLowerCase();
+    const currentReference = current.reference?.toLowerCase();
+    const currentAmount = current.amount.minorUnits;
 
-      // Count how many criteria match
-      const matchCount = [
-        recipientMatches,
-        referenceMatches,
-        amountMatches,
-      ].filter(Boolean).length;
+    // Find the closest matching previous transaction
+    let bestMatch: (typeof previousTransactions)[0] | undefined;
+    let bestAmountDifference = Infinity;
 
-      return matchCount >= 2;
-    });
+    for (const prev of previousTransactions) {
+      if (
+        prev.counterPartyName?.toLowerCase() !== currentRecipient ||
+        prev.reference?.toLowerCase() !== currentReference
+      ) {
+        continue;
+      }
 
-    if (previous && previous.spendingCategory !== current.spendingCategory) {
+      const amountDifference = Math.abs(prev.amount.minorUnits - currentAmount);
+      const percentageTolerance =
+        Math.max(Math.abs(prev.amount.minorUnits), Math.abs(currentAmount)) *
+        0.05;
+      const fixedTolerance = 500; // £5
+      const amountTolerance = Math.max(percentageTolerance, fixedTolerance);
+
+      if (
+        amountDifference <= amountTolerance &&
+        amountDifference < bestAmountDifference
+      ) {
+        bestMatch = prev;
+        bestAmountDifference = amountDifference;
+      }
+    }
+
+    if (bestMatch && bestMatch.spendingCategory !== current.spendingCategory) {
       matches.push({
         currentTransaction: current,
-        previousTransaction: previous,
-        categoryFromPrevious: previous.spendingCategory,
+        previousTransaction: bestMatch,
+        categoryFromPrevious: bestMatch.spendingCategory,
       });
     }
   }
