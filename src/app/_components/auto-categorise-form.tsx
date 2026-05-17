@@ -1,12 +1,8 @@
 "use client";
 
 import bulkUpdateCategories from "@/lib/actions/auto-categorize/bulk-update-categories";
-import fetchTransactionsForMonth from "@/lib/actions/auto-categorize/fetch-previous-month-transactions";
-import {
-  matchTransactionsByRecipientAndReference,
-  TransactionMatch,
-} from "@/lib/actions/auto-categorize/match-transactions";
-import { Transactions } from "@/lib/starling-types";
+import { TransactionMatch } from "@/lib/actions/auto-categorize/match-transactions";
+import { getAutoCategoriseMatches } from "@/lib/queries/auto-categorise-matches";
 import {
   Button,
   ModalBody,
@@ -20,11 +16,10 @@ import { AutoCategoriseMatchCard } from "./auto-categorise-match-card";
 import SafeModal from "./safe-modal";
 
 interface Props {
-  currentTransactions: Transactions["feedItems"];
   offset: number;
 }
 
-export const AutoCategoriseForm = ({ currentTransactions, offset }: Props) => {
+export const AutoCategoriseForm = ({ offset }: Props) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -59,19 +54,8 @@ export const AutoCategoriseForm = ({ currentTransactions, offset }: Props) => {
     setSuccessCount(0);
 
     try {
-      // Fetch previous month's transactions
-      const previousMonthTransactions = await fetchTransactionsForMonth(
-        offset - 1,
-      );
-
-      // Match transactions
-      const transactionMatches = matchTransactionsByRecipientAndReference(
-        currentTransactions.filter((i) => i.status !== "DECLINED"),
-        previousMonthTransactions.feedItems.filter(
-          (i) => i.status !== "DECLINED",
-        ),
-      );
-
+      // Fetch matches from server (handles fetching transactions, matching, and filtering ignored)
+      const transactionMatches = await getAutoCategoriseMatches(offset);
       setMatches(transactionMatches);
       selectAll(); // Select all by default
     } catch (err) {
