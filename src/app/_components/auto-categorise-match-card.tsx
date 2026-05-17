@@ -2,20 +2,32 @@
 
 import { TransactionMatch } from "@/lib/actions/auto-categorize/match-transactions";
 import { formatAsGBP } from "@/lib/currency-format";
-import { Card, CardBody, Checkbox } from "@heroui/react";
+import { Button, Card, CardBody, Checkbox } from "@heroui/react";
+import React from "react";
+import { PiProhibitBold } from "react-icons/pi";
 import { formatCategoryString } from "./category-select";
 
 interface Props {
   match: TransactionMatch;
   isSelected: boolean;
   onToggle: () => void;
+  onIgnore: () => Promise<void>;
 }
 
 export const AutoCategoriseMatchCard = ({
   match,
   isSelected,
   onToggle,
+  onIgnore,
 }: Props) => {
+  const [isPending, startTransition] = React.useTransition();
+
+  const handleIgnore = () => {
+    startTransition(async () => {
+      await onIgnore();
+    });
+  };
+
   return (
     <Card
       isPressable
@@ -36,15 +48,27 @@ export const AutoCategoriseMatchCard = ({
             <div className="truncate font-semibold">
               {match.currentTransaction.counterPartyName}
             </div>
-            <div className="mt-1 text-xs font-semibold">
-              {formatAsGBP(
-                match.currentTransaction.amount.minorUnits / 100,
-                false,
-              )}
-              {match.previousTransaction.amount.minorUnits !==
-              match.currentTransaction.amount.minorUnits
-                ? ` (was ${formatAsGBP(match.previousTransaction.amount.minorUnits / 100, false)})`
-                : ""}
+            <div className="flex items-center gap-2">
+              <div className="mt-1 text-xs font-semibold">
+                {formatAsGBP(
+                  match.currentTransaction.amount.minorUnits / 100,
+                  false,
+                )}
+                {match.previousTransaction.amount.minorUnits !==
+                match.currentTransaction.amount.minorUnits
+                  ? ` (was ${formatAsGBP(match.previousTransaction.amount.minorUnits / 100, false)})`
+                  : ""}
+              </div>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                className="h-6 w-6 min-w-fit"
+                onPress={handleIgnore}
+                isLoading={isPending}
+              >
+                <PiProhibitBold className="text-base text-gray-500 hover:text-red-500" />
+              </Button>
             </div>
           </div>
           <div className="truncate text-sm text-gray-600 dark:text-gray-400">

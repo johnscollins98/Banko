@@ -1,6 +1,7 @@
 "use client";
 
 import bulkUpdateCategories from "@/lib/actions/auto-categorize/bulk-update-categories";
+import ignoreTransactionMatch from "@/lib/actions/auto-categorize/ignore-transaction-match";
 import { TransactionMatch } from "@/lib/actions/auto-categorize/match-transactions";
 import { getAutoCategoriseMatches } from "@/lib/queries/auto-categorise-matches";
 import {
@@ -99,6 +100,33 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
     setSelectedIds(new Set());
   };
 
+  const handleIgnore = (matchToIgnore: TransactionMatch) => async () => {
+    try {
+      await ignoreTransactionMatch({
+        currentTransactionId: matchToIgnore.currentTransaction.feedItemUid,
+        previousTransactionId: matchToIgnore.previousTransaction.feedItemUid,
+      });
+      // Remove the ignored match from the list
+      setMatches((prevMatches) =>
+        prevMatches.filter(
+          (m) =>
+            m.currentTransaction.feedItemUid !==
+            matchToIgnore.currentTransaction.feedItemUid,
+        ),
+      );
+      // Also remove from selected ids if it was selected
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(matchToIgnore.currentTransaction.feedItemUid);
+        return newSet;
+      });
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to ignore transaction",
+      );
+    }
+  };
+
   const handleSubmit = async () => {
     if (selectedIds.size === 0) return;
 
@@ -146,6 +174,7 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
             onToggle={toggleSelection}
             onSelectAll={selectAll}
             onClearSelection={clearSelection}
+            onIgnore={handleIgnore}
           />
         );
     }
@@ -244,6 +273,7 @@ interface MatchesListProps {
   onToggle: (id: string) => void;
   onSelectAll: () => void;
   onClearSelection: () => void;
+  onIgnore: (match: TransactionMatch) => () => Promise<void>;
 }
 
 const MatchesList = ({
@@ -252,6 +282,7 @@ const MatchesList = ({
   onToggle,
   onSelectAll,
   onClearSelection,
+  onIgnore,
 }: MatchesListProps) => (
   <>
     <p>
@@ -274,6 +305,7 @@ const MatchesList = ({
             match={match}
             isSelected={selectedIds.has(match.currentTransaction.feedItemUid)}
             onToggle={() => onToggle(match.currentTransaction.feedItemUid)}
+            onIgnore={onIgnore(match)}
           />
         ))}
       </div>
