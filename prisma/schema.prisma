@@ -58,9 +58,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  UserSettings   UserSettings?
-  BudgetOverride BudgetOverride[]
-  Budget         Budget[]
+  UserSettings            UserSettings?
+  BudgetOverride          BudgetOverride[]
+  Budget                  Budget[]
+  IgnoredTransactionMatch IgnoredTransactionMatch[]
 }
 
 model Account {
@@ -82,6 +83,18 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+}
+
+model IgnoredTransactionMatch {
+  id                    Int      @id @default(autoincrement())
+  userId                String
+  currentTransactionId  String
+  previousTransactionId String
+  createdAt             DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, currentTransactionId, previousTransactionId])
 }
 
 model VerificationToken {
