@@ -14,7 +14,7 @@ export interface TransactionMatch {
  * - recipient name matches
  * - reference matches
  * - amount is within 5% OR ±£5 (500 minor units) of the other transaction
- * Returns only matches where categories differ
+ * Returns all matches where categories differ (not just the best match)
  */
 export function matchTransactionsByRecipientAndReference(
   currentTransactions: Transactions["feedItems"],
@@ -26,10 +26,6 @@ export function matchTransactionsByRecipientAndReference(
     const currentRecipient = current.counterPartyName?.toLowerCase();
     const currentReference = current.reference?.toLowerCase();
     const currentAmount = current.amount.minorUnits;
-
-    // Find the closest matching previous transaction
-    let bestMatch: (typeof previousTransactions)[0] | undefined;
-    let bestAmountDifference = Infinity;
 
     for (const prev of previousTransactions) {
       if (
@@ -48,20 +44,15 @@ export function matchTransactionsByRecipientAndReference(
 
       if (
         amountDifference <= amountTolerance &&
-        amountDifference < bestAmountDifference
+        prev.spendingCategory !== current.spendingCategory
       ) {
-        bestMatch = prev;
-        bestAmountDifference = amountDifference;
+        matches.push({
+          currentTransaction: current,
+          previousTransaction: prev,
+          categoryFromPrevious: prev.spendingCategory,
+          ignored: false,
+        });
       }
-    }
-
-    if (bestMatch && bestMatch.spendingCategory !== current.spendingCategory) {
-      matches.push({
-        currentTransaction: current,
-        previousTransaction: bestMatch,
-        categoryFromPrevious: bestMatch.spendingCategory,
-        ignored: false,
-      });
     }
   }
 

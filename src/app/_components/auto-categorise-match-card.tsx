@@ -36,6 +36,13 @@ export const AutoCategoriseMatchCard = ({
     });
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short",
+    });
+  };
+
   return (
     <Card
       shadow="none"
@@ -79,6 +86,11 @@ export const AutoCategoriseMatchCard = ({
             <div className="text-xs font-semibold text-blue-600 dark:text-blue-400">
               → {formatCategoryString(match.categoryFromPrevious)}
             </div>
+          </div>
+
+          <div className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+            {formatDate(match.currentTransaction.transactionTime)} →{" "}
+            {formatDate(match.previousTransaction.transactionTime)}
           </div>
         </div>
         <div className="flex items-start pt-1">
