@@ -4,6 +4,7 @@ export interface TransactionMatch {
   currentTransaction: Transactions["feedItems"][0];
   previousTransaction: Transactions["feedItems"][0];
   categoryFromPrevious: SpendingCategory;
+  ignored: boolean;
 }
 
 /**
@@ -59,6 +60,7 @@ export function matchTransactionsByRecipientAndReference(
         currentTransaction: current,
         previousTransaction: bestMatch,
         categoryFromPrevious: bestMatch.spendingCategory,
+        ignored: false,
       });
     }
   }

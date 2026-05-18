@@ -4,7 +4,7 @@ import { TransactionMatch } from "@/lib/actions/auto-categorize/match-transactio
 import { formatAsGBP } from "@/lib/currency-format";
 import { Button, Card, CardBody, Checkbox } from "@heroui/react";
 import React from "react";
-import { PiProhibitBold } from "react-icons/pi";
+import { PiCheckCircle, PiProhibitBold } from "react-icons/pi";
 import { formatCategoryString } from "./category-select";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
   isSelected: boolean;
   onToggle: () => void;
   onIgnore: () => Promise<void>;
+  onUnignore?: () => Promise<void>;
 }
 
 export const AutoCategoriseMatchCard = ({
@@ -19,6 +20,7 @@ export const AutoCategoriseMatchCard = ({
   isSelected,
   onToggle,
   onIgnore,
+  onUnignore,
 }: Props) => {
   const [isPending, startTransition] = React.useTransition();
 
@@ -28,12 +30,16 @@ export const AutoCategoriseMatchCard = ({
     });
   };
 
+  const handleUnignore = () => {
+    startTransition(async () => {
+      await onUnignore?.();
+    });
+  };
+
   return (
     <Card
-      isPressable
       shadow="none"
-      onPress={onToggle}
-      className={`border-1 transition-colors ${
+      className={`border-1 transition-all ${
         isSelected
           ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
           : "border-default hover:bg-gray-50 dark:hover:bg-gray-900"
@@ -43,32 +49,23 @@ export const AutoCategoriseMatchCard = ({
         <div className="flex items-start pt-1">
           <Checkbox isSelected={isSelected} onChange={onToggle} />
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex justify-between">
+        <div
+          className={`min-w-0 flex-1 cursor-pointer ${match.ignored ? "opacity-50" : ""}`}
+          onClick={onToggle}
+        >
+          <div className="flex items-start justify-between gap-2">
             <div className="truncate font-semibold">
               {match.currentTransaction.counterPartyName}
             </div>
-            <div className="flex items-center gap-2">
-              <div className="mt-1 text-xs font-semibold">
-                {formatAsGBP(
-                  match.currentTransaction.amount.minorUnits / 100,
-                  false,
-                )}
-                {match.previousTransaction.amount.minorUnits !==
-                match.currentTransaction.amount.minorUnits
-                  ? ` (was ${formatAsGBP(match.previousTransaction.amount.minorUnits / 100, false)})`
-                  : ""}
-              </div>
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                className="h-6 w-6 min-w-fit"
-                onPress={handleIgnore}
-                isLoading={isPending}
-              >
-                <PiProhibitBold className="text-base text-gray-500 hover:text-red-500" />
-              </Button>
+            <div className="mt-1 text-nowrap text-xs font-semibold">
+              {formatAsGBP(
+                match.currentTransaction.amount.minorUnits / 100,
+                false,
+              )}
+              {match.previousTransaction.amount.minorUnits !==
+              match.currentTransaction.amount.minorUnits
+                ? ` (was ${formatAsGBP(match.previousTransaction.amount.minorUnits / 100, false)})`
+                : ""}
             </div>
           </div>
           <div className="truncate text-sm text-gray-600 dark:text-gray-400">
@@ -83,6 +80,21 @@ export const AutoCategoriseMatchCard = ({
               → {formatCategoryString(match.categoryFromPrevious)}
             </div>
           </div>
+        </div>
+        <div className="flex items-start pt-1">
+          <Button
+            isIconOnly
+            size="sm"
+            className={`h-6 w-6 min-w-fit`}
+            onPress={match.ignored ? handleUnignore : handleIgnore}
+            isLoading={isPending}
+          >
+            {match.ignored ? (
+              <PiCheckCircle className="text-base text-green-700 dark:text-green-400" />
+            ) : (
+              <PiProhibitBold className="text-base text-red-600" />
+            )}
+          </Button>
         </div>
       </CardBody>
     </Card>

@@ -3,7 +3,14 @@
 import bulkUpdateCategories from "@/lib/actions/auto-categorize/bulk-update-categories";
 import ignoreTransactionMatch from "@/lib/actions/auto-categorize/ignore-transaction-match";
 import { TransactionMatch } from "@/lib/actions/auto-categorize/match-transactions";
-import { Button, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import unignoreTransactionMatch from "@/lib/actions/auto-categorize/unignore-transaction-match";
+import {
+  Button,
+  Checkbox,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@heroui/react";
 import React, { useOptimistic, useTransition } from "react";
 import { PiShootingStar } from "react-icons/pi";
 import { AutoCategoriseMatchCard } from "./auto-categorise-match-card";
@@ -15,20 +22,40 @@ interface Props {
 
 export const AutoCategoriseForm = ({ matches }: Props) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [showIgnored, setShowIgnored] = React.useState(false);
   const [pending, startTransition] = useTransition();
   const [, startIgnoreTransition] = useTransition();
-  const [optimisticMatches, removeOptimisticMatch] = useOptimistic(
+  const [optimisticMatches, updateOptimisticMatches] = useOptimistic(
     matches,
-    (state: TransactionMatch[], matchToRemove: TransactionMatch) =>
-      state.filter(
-        (m) =>
-          m.currentTransaction.feedItemUid !==
-          matchToRemove.currentTransaction.feedItemUid,
-      ),
+    (
+      state: TransactionMatch[],
+      update: { type: "remove" | "toggle-ignored"; match: TransactionMatch },
+    ) => {
+      if (update.type === "remove") {
+        return state.filter(
+          (m) =>
+            m.currentTransaction.feedItemUid !==
+            update.match.currentTransaction.feedItemUid,
+        );
+      } else if (update.type === "toggle-ignored") {
+        return state.map((m) =>
+          m.currentTransaction.feedItemUid ===
+          update.match.currentTransaction.feedItemUid
+            ? { ...m, ignored: !m.ignored }
+            : m,
+        );
+      }
+      return state;
+    },
   );
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
   const [successCount, setSuccessCount] = React.useState(0);
+
+  // Filter displayed matches based on showIgnored
+  const displayedMatches = optimisticMatches.filter(
+    (m) => !m.ignored || showIgnored,
+  );
 
   // Determine current state
   const getContentState = ():
@@ -39,7 +66,7 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
     | "no-selection" => {
     if (successCount > 0) return "success";
     if (error) return "error";
-    if (optimisticMatches.length === 0) return "no-matches";
+    if (displayedMatches.length === 0) return "no-matches";
     return selectedIds.size === 0 ? "no-selection" : "matches";
   };
 
@@ -74,7 +101,7 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
 
   const selectAll = () => {
     const allIds = new Set(
-      optimisticMatches.map((m) => m.currentTransaction.feedItemUid),
+      displayedMatches.map((m) => m.currentTransaction.feedItemUid),
     );
     setSelectedIds(allIds);
   };
@@ -83,8 +110,22 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
     setSelectedIds(new Set());
   };
 
+  const handleShowIgnoredChange = (show: boolean) => {
+    setShowIgnored(show);
+    // Unselect any ignored matches when toggling
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      optimisticMatches.forEach((m) => {
+        if (m.ignored) {
+          newSet.delete(m.currentTransaction.feedItemUid);
+        }
+      });
+      return newSet;
+    });
+  };
+
   const handleIgnore = (matchToIgnore: TransactionMatch) => async () => {
-    removeOptimisticMatch(matchToIgnore);
+    updateOptimisticMatches({ type: "toggle-ignored", match: matchToIgnore });
     startIgnoreTransition(async () => {
       try {
         await ignoreTransactionMatch({
@@ -100,6 +141,23 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to ignore transaction",
+        );
+      }
+    });
+  };
+
+  const handleUnignore = (matchToUnignore: TransactionMatch) => async () => {
+    updateOptimisticMatches({ type: "toggle-ignored", match: matchToUnignore });
+    startIgnoreTransition(async () => {
+      try {
+        await unignoreTransactionMatch({
+          currentTransactionId: matchToUnignore.currentTransaction.feedItemUid,
+          previousTransactionId:
+            matchToUnignore.previousTransaction.feedItemUid,
+        });
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to unignore transaction",
         );
       }
     });
@@ -134,7 +192,13 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
       case "error":
         return <ErrorContent error={error!} onClose={handleClose} />;
       case "no-matches":
-        return <NoMatchesContent onClose={handleClose} />;
+        return (
+          <NoMatchesContent
+            onClose={handleClose}
+            showIgnored={showIgnored}
+            onShowIgnoredChange={handleShowIgnoredChange}
+          />
+        );
       case "success":
         return (
           <SuccessContent successCount={successCount} onClose={handleClose} />
@@ -143,12 +207,15 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
         // "matches" or "no-selection"
         return (
           <MatchesList
-            matches={optimisticMatches}
+            matches={displayedMatches}
             selectedIds={selectedIds}
             onToggle={toggleSelection}
             onSelectAll={selectAll}
             onClearSelection={clearSelection}
             onIgnore={handleIgnore}
+            onUnignore={handleUnignore}
+            showIgnored={showIgnored}
+            onShowIgnoredChange={handleShowIgnoredChange}
           />
         );
     }
@@ -208,14 +275,30 @@ const ErrorContent = ({ error, onClose }: ErrorContentProps) => (
 
 interface NoMatchesContentProps {
   onClose: () => void;
+  showIgnored: boolean;
+  onShowIgnoredChange: (show: boolean) => void;
 }
 
-const NoMatchesContent = ({ onClose }: NoMatchesContentProps) => (
-  <div className="py-8 text-center">
-    <p className="text-gray-600">No transactions found to categorise</p>
-    <Button onPress={onClose} color="default" className="mt-4">
-      Close
-    </Button>
+const NoMatchesContent = ({
+  onClose,
+  showIgnored,
+  onShowIgnoredChange,
+}: NoMatchesContentProps) => (
+  <div>
+    <div className="mb-4">
+      <Checkbox
+        isSelected={showIgnored}
+        onChange={(e) => onShowIgnoredChange(e.target.checked)}
+      >
+        <span className="text-sm">Show Ignored</span>
+      </Checkbox>
+    </div>
+    <div className="py-8 text-center">
+      <p className="text-gray-600">No transactions found to categorise</p>
+      <Button onPress={onClose} color="default" className="mt-4">
+        Close
+      </Button>
+    </div>
   </div>
 );
 
@@ -242,6 +325,9 @@ interface MatchesListProps {
   onSelectAll: () => void;
   onClearSelection: () => void;
   onIgnore: (match: TransactionMatch) => () => Promise<void>;
+  onUnignore: (match: TransactionMatch) => () => Promise<void>;
+  showIgnored: boolean;
+  onShowIgnoredChange: (show: boolean) => void;
 }
 
 const MatchesList = ({
@@ -251,19 +337,30 @@ const MatchesList = ({
   onSelectAll,
   onClearSelection,
   onIgnore,
+  onUnignore,
+  showIgnored,
+  onShowIgnoredChange,
 }: MatchesListProps) => (
   <>
     <p>
       Here are some transactions we found that look similar to ones from last
       month. Select the ones you want to update to the same category.
     </p>
-    <div className="flex justify-end gap-2">
-      <Button size="sm" variant="flat" onPress={onSelectAll}>
-        Select All
-      </Button>
-      <Button size="sm" variant="flat" onPress={onClearSelection}>
-        Clear
-      </Button>
+    <div className="mb-3 flex items-center justify-between gap-2">
+      <Checkbox
+        isSelected={showIgnored}
+        onChange={(e) => onShowIgnoredChange(e.target.checked)}
+      >
+        <span className="text-sm">Show Ignored</span>
+      </Checkbox>
+      <div className="flex gap-2">
+        <Button size="sm" variant="flat" onPress={onSelectAll}>
+          Select All
+        </Button>
+        <Button size="sm" variant="flat" onPress={onClearSelection}>
+          Clear
+        </Button>
+      </div>
     </div>
     <div className="mb-4 max-h-96 overflow-y-auto">
       <div className="flex flex-col space-y-3">
@@ -274,6 +371,7 @@ const MatchesList = ({
             isSelected={selectedIds.has(match.currentTransaction.feedItemUid)}
             onToggle={() => onToggle(match.currentTransaction.feedItemUid)}
             onIgnore={onIgnore(match)}
+            onUnignore={onUnignore(match)}
           />
         ))}
       </div>

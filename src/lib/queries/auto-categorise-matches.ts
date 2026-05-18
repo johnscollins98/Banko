@@ -76,11 +76,14 @@ export async function getAutoCategoriseMatches(
     ),
   );
 
-  // Filter out ignored matches
-  const filteredMatches = potentialMatches.filter((match) => {
+  // Mark ignored matches with the ignored flag
+  const matchesWithIgnoreStatus = potentialMatches.map((match) => {
     const key = `${match.currentTransaction.feedItemUid}|${match.previousTransaction.feedItemUid}`;
-    return !ignoredSet.has(key);
+    return {
+      ...match,
+      ignored: ignoredSet.has(key),
+    };
   });
 
-  return filteredMatches;
+  return matchesWithIgnoreStatus;
 }
