@@ -2,6 +2,7 @@
 
 import { protectedAction } from "@/lib/actions/utils";
 import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const ignoreTransactionMatchSchema = z.object({
@@ -25,6 +26,9 @@ const ignoreTransactionMatch = protectedAction(
         previousTransactionId,
       },
     });
+
+    // Invalidate the home page to refetch the auto-categorise matches
+    revalidatePath("/");
 
     return { success: true };
   },

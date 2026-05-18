@@ -3,76 +3,59 @@
 import bulkUpdateCategories from "@/lib/actions/auto-categorize/bulk-update-categories";
 import ignoreTransactionMatch from "@/lib/actions/auto-categorize/ignore-transaction-match";
 import { TransactionMatch } from "@/lib/actions/auto-categorize/match-transactions";
-import { getAutoCategoriseMatches } from "@/lib/queries/auto-categorise-matches";
-import {
-  Button,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Spinner,
-} from "@heroui/react";
-import React from "react";
+import { Button, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import React, { useOptimistic, useTransition } from "react";
 import { PiShootingStar } from "react-icons/pi";
 import { AutoCategoriseMatchCard } from "./auto-categorise-match-card";
 import SafeModal from "./safe-modal";
 
 interface Props {
-  offset: number;
+  matches: TransactionMatch[];
 }
 
-export const AutoCategoriseForm = ({ offset }: Props) => {
+export const AutoCategoriseForm = ({ matches }: Props) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [matches, setMatches] = React.useState<TransactionMatch[]>([]);
+  const [pending, startTransition] = useTransition();
+  const [, startIgnoreTransition] = useTransition();
+  const [optimisticMatches, removeOptimisticMatch] = useOptimistic(
+    matches,
+    (state: TransactionMatch[], matchToRemove: TransactionMatch) =>
+      state.filter(
+        (m) =>
+          m.currentTransaction.feedItemUid !==
+          matchToRemove.currentTransaction.feedItemUid,
+      ),
+  );
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string | null>(null);
   const [successCount, setSuccessCount] = React.useState(0);
 
   // Determine current state
   const getContentState = ():
-    | "loading"
     | "error"
     | "no-matches"
     | "success"
     | "matches"
     | "no-selection" => {
     if (successCount > 0) return "success";
-    if (isLoading) return "loading";
     if (error) return "error";
-    if (matches.length === 0) return "no-matches";
+    if (optimisticMatches.length === 0) return "no-matches";
     return selectedIds.size === 0 ? "no-selection" : "matches";
   };
 
   const contentState = getContentState();
 
-  const handleOpen = async () => {
+  const handleOpen = () => {
     setIsOpen(true);
-    setIsLoading(true);
     setError(null);
-    setMatches([]);
     setSelectedIds(new Set());
     setSuccessCount(0);
-
-    try {
-      // Fetch matches from server (handles fetching transactions, matching, and filtering ignored)
-      const transactionMatches = await getAutoCategoriseMatches(offset);
-      setMatches(transactionMatches);
-      selectAll(); // Select all by default
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load transactions",
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleClose = () => {
     setIsOpen(false);
     // Reset state after modal closes
     setTimeout(() => {
-      setMatches([]);
       setSelectedIds(new Set());
       setError(null);
       setSuccessCount(0);
@@ -91,7 +74,7 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
 
   const selectAll = () => {
     const allIds = new Set(
-      matches.map((m) => m.currentTransaction.feedItemUid),
+      optimisticMatches.map((m) => m.currentTransaction.feedItemUid),
     );
     setSelectedIds(allIds);
   };
@@ -101,62 +84,53 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
   };
 
   const handleIgnore = (matchToIgnore: TransactionMatch) => async () => {
-    try {
-      await ignoreTransactionMatch({
-        currentTransactionId: matchToIgnore.currentTransaction.feedItemUid,
-        previousTransactionId: matchToIgnore.previousTransaction.feedItemUid,
-      });
-      // Remove the ignored match from the list
-      setMatches((prevMatches) =>
-        prevMatches.filter(
-          (m) =>
-            m.currentTransaction.feedItemUid !==
-            matchToIgnore.currentTransaction.feedItemUid,
-        ),
-      );
-      // Also remove from selected ids if it was selected
-      setSelectedIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(matchToIgnore.currentTransaction.feedItemUid);
-        return newSet;
-      });
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to ignore transaction",
-      );
-    }
+    removeOptimisticMatch(matchToIgnore);
+    startIgnoreTransition(async () => {
+      try {
+        await ignoreTransactionMatch({
+          currentTransactionId: matchToIgnore.currentTransaction.feedItemUid,
+          previousTransactionId: matchToIgnore.previousTransaction.feedItemUid,
+        });
+        // Remove from selected ids if it was selected
+        setSelectedIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(matchToIgnore.currentTransaction.feedItemUid);
+          return newSet;
+        });
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to ignore transaction",
+        );
+      }
+    });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (selectedIds.size === 0) return;
 
-    setIsSubmitting(true);
-    try {
-      const updates = matches
-        .filter((m) => selectedIds.has(m.currentTransaction.feedItemUid))
-        .map((m) => ({
-          transactionId: m.currentTransaction.feedItemUid,
-          category: m.categoryFromPrevious,
-        }));
+    startTransition(async () => {
+      try {
+        const updates = optimisticMatches
+          .filter((m) => selectedIds.has(m.currentTransaction.feedItemUid))
+          .map((m) => ({
+            transactionId: m.currentTransaction.feedItemUid,
+            category: m.categoryFromPrevious,
+          }));
 
-      await bulkUpdateCategories({ updates });
-      setSuccessCount(updates.length);
-      setSelectedIds(new Set());
-      setMatches([]);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update transactions",
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+        await bulkUpdateCategories({ updates });
+        setSuccessCount(updates.length);
+        setSelectedIds(new Set());
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to update transactions",
+        );
+      }
+    });
   };
 
   // Render modal content based on state
   const renderModalContent = () => {
     switch (contentState) {
-      case "loading":
-        return <LoadingContent />;
       case "error":
         return <ErrorContent error={error!} onClose={handleClose} />;
       case "no-matches":
@@ -169,7 +143,7 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
         // "matches" or "no-selection"
         return (
           <MatchesList
-            matches={matches}
+            matches={optimisticMatches}
             selectedIds={selectedIds}
             onToggle={toggleSelection}
             onSelectAll={selectAll}
@@ -205,7 +179,7 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
           <div className="px-6 py-4">
             <ModalFooter
               state={contentState}
-              isSubmitting={isSubmitting}
+              isPending={pending}
               selectedCount={selectedIds.size}
               onCancel={handleClose}
               onSubmit={handleSubmit}
@@ -218,12 +192,6 @@ export const AutoCategoriseForm = ({ offset }: Props) => {
 };
 
 // Modal content components
-const LoadingContent = () => (
-  <div className="flex items-center justify-center py-8">
-    <Spinner label="Loading transactions..." />
-  </div>
-);
-
 interface ErrorContentProps {
   error: string;
   onClose: () => void;
@@ -314,14 +282,8 @@ const MatchesList = ({
 );
 
 interface ModalFooterProps {
-  state:
-    | "loading"
-    | "error"
-    | "no-matches"
-    | "success"
-    | "matches"
-    | "no-selection";
-  isSubmitting: boolean;
+  state: "error" | "no-matches" | "success" | "matches" | "no-selection";
+  isPending: boolean;
   selectedCount: number;
   onCancel: () => void;
   onSubmit: () => void;
@@ -329,25 +291,25 @@ interface ModalFooterProps {
 
 const ModalFooter = ({
   state,
-  isSubmitting,
+  isPending,
   selectedCount,
   onCancel,
   onSubmit,
 }: ModalFooterProps) => {
   // States that don't show footer
-  if (["loading", "error", "no-matches", "success"].includes(state)) {
+  if (["error", "no-matches", "success"].includes(state)) {
     return null;
   }
 
   return (
     <div className="flex justify-between gap-2">
-      <Button color="default" onPress={onCancel} isDisabled={isSubmitting}>
+      <Button color="default" onPress={onCancel} isDisabled={isPending}>
         Cancel
       </Button>
       <Button
         color="primary"
         onPress={onSubmit}
-        isLoading={isSubmitting}
+        isLoading={isPending}
         isDisabled={selectedCount === 0}
       >
         Update {selectedCount} Transaction{selectedCount !== 1 ? "s" : ""}

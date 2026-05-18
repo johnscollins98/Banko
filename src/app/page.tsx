@@ -1,4 +1,5 @@
 import { getStartAndEndOfMonth } from "@/lib/date-range";
+import { getAutoCategoriseMatches } from "@/lib/queries/auto-categorise-matches";
 import {
   getBudgetOverridesForUserCached,
   getDefaultBudgetsForUserCached,
@@ -6,6 +7,8 @@ import {
 import { getUserSettingsCached } from "@/lib/queries/user-settings";
 import { SPENDING_CATEGORIES, SpendingCategory } from "@/lib/starling-types";
 import getUserAccount from "@/lib/user";
+import { Suspense } from "react";
+import { AutoCategoriseForm } from "./_components/auto-categorise-form";
 import { BalanceOverview } from "./_components/balance-overview";
 import { DateNavigation } from "./_components/date-navigation";
 import Navbar from "./_components/navbar";
@@ -107,7 +110,11 @@ export default async function Home(props: {
             startDate={start}
             totals={totals}
             offset={offsetNum}
-            transactions={feedItems}
+            autoCategoriseForm={
+              <Suspense fallback={null}>
+                <AutoCategoriseFormServer offset={offsetNum} />
+              </Suspense>
+            }
           />
         </div>
       </Navbar>
@@ -120,3 +127,8 @@ export default async function Home(props: {
     </main>
   );
 }
+
+const AutoCategoriseFormServer = async ({ offset }: { offset: number }) => {
+  const matches = await getAutoCategoriseMatches(offset);
+  return <AutoCategoriseForm matches={matches} />;
+};
