@@ -73,7 +73,11 @@ export const TransactionFeed = ({ feedItems, settleUpProfile }: Props) => {
         <div key={title}>
           <div className="flex items-center justify-between px-1 py-2 text-sm text-foreground-600">
             {title}
-            <div>{formatAsGBP(Math.abs(total))}</div>
+            <div
+              className={total < 0 ? "text-blue-600 dark:text-blue-400" : ""}
+            >
+              {formatAsGBP(total * -1)}
+            </div>
           </div>
           <div className="flex flex-1 flex-col rounded-md bg-white shadow dark:bg-foreground-100">
             {items.map((feedItem) => (
