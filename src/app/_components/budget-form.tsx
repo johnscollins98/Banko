@@ -144,7 +144,10 @@ export const BudgetForm = ({ budgets, filterBy, startDate }: Props) => {
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
-      <SafeModal isOpen={removeWarningOpen} onClose={onClose}>
+      <SafeModal
+        isOpen={removeWarningOpen}
+        onClose={() => setRemoveWarningOpen(false)}
+      >
         <ModalContent>
           <ModalHeader>
             {existingBudget?.isOverride ? "Use Default" : "Remove"} Budget
