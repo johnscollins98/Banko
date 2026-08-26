@@ -19,7 +19,7 @@ export default async function fetchTransactionsForMonth(
   };
 
   const date = new Date(Date.now());
-  date.setHours(0, 0, 0, 0);
+  date.setUTCHours(0, 0, 0, 0);
 
   // Get previous month's date range (offset -1)
   const { start, end } = getStartAndEndOfMonth(

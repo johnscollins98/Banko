@@ -34,10 +34,10 @@ export class Starling {
     defaultCategory: string,
   ): Promise<Transactions> {
     const startOfDay = new Date(start);
-    startOfDay.setHours(0, 0, 0);
+    startOfDay.setUTCHours(0, 0, 0);
 
     const endOfDay = new Date(end);
-    endOfDay.setHours(23, 59, 59);
+    endOfDay.setUTCHours(23, 59, 59);
 
     const res = await this.fetch(
       `feed/account/${accountId}/category/${defaultCategory}/transactions-between?minTransactionTimestamp=${start.toISOString()}&maxTransactionTimestamp=${endOfDay.toISOString()}`,

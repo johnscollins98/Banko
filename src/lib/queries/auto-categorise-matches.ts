@@ -26,7 +26,7 @@ export async function getAutoCategoriseMatches(
   };
 
   const date = new Date(Date.now());
-  date.setHours(0, 0, 0, 0);
+  date.setUTCHours(0, 0, 0, 0);
 
   // Get current and previous month date ranges
   const { start: currentStart, end: currentEnd } = getStartAndEndOfMonth(

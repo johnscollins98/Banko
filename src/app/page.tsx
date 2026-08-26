@@ -25,7 +25,7 @@ const getDates = async (offsetStr?: string) => {
   const offset = parseInt(offsetStr ?? "0");
 
   const date = new Date(Date.now());
-  date.setHours(0, 0, 0, 0);
+  date.setUTCHours(0, 0, 0, 0);
 
   return getStartAndEndOfMonth(
     date,
