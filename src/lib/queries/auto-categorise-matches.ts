@@ -8,6 +8,7 @@ import { getStartAndEndOfMonth } from "@/lib/date-range";
 import { db } from "@/lib/db";
 import { getUserSettingsCached } from "@/lib/queries/user-settings";
 import getUserAccount from "@/lib/user";
+import { cookies } from "next/headers";
 
 /**
  * Consolidated query that:
@@ -26,7 +27,9 @@ export async function getAutoCategoriseMatches(
   };
 
   const date = new Date(Date.now());
-  date.setUTCHours(0, 0, 0, 0);
+  const timeZone = decodeURIComponent(
+    (await cookies()).get("banko-timezone")?.value ?? "UTC",
+  );
 
   // Get current and previous month date ranges
   const { start: currentStart, end: currentEnd } = getStartAndEndOfMonth(
@@ -34,6 +37,7 @@ export async function getAutoCategoriseMatches(
     userSettings.monthBarrierOption,
     userSettings.day,
     offset,
+    timeZone,
   );
 
   const { start: prevStart, end: prevEnd } = getStartAndEndOfMonth(
@@ -41,6 +45,7 @@ export async function getAutoCategoriseMatches(
     userSettings.monthBarrierOption,
     userSettings.day,
     offset - 1,
+    timeZone,
   );
 
   // Fetch transactions from both months

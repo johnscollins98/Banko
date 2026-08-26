@@ -4,6 +4,7 @@ import { getStartAndEndOfMonth } from "@/lib/date-range";
 import { getUserSettingsCached } from "@/lib/queries/user-settings";
 import { Transactions } from "@/lib/starling-types";
 import getUserAccount from "@/lib/user";
+import { cookies } from "next/headers";
 
 /**
  * Fetches transactions from the previous month
@@ -19,7 +20,9 @@ export default async function fetchTransactionsForMonth(
   };
 
   const date = new Date(Date.now());
-  date.setUTCHours(0, 0, 0, 0);
+  const timeZone = decodeURIComponent(
+    (await cookies()).get("banko-timezone")?.value ?? "UTC",
+  );
 
   // Get previous month's date range (offset -1)
   const { start, end } = getStartAndEndOfMonth(
@@ -27,6 +30,7 @@ export default async function fetchTransactionsForMonth(
     userSettings.monthBarrierOption,
     userSettings.day,
     offset,
+    timeZone,
   );
 
   return await starling.getTransactions(accountId, start, end, defaultCategory);

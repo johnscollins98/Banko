@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { PullToRefresh } from "./_components/pull-to-refresh";
 import { Theme } from "./_components/Theme";
+import { TimezoneSync } from "./_components/timezone-sync";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
       </head>
       <body className="relative flex flex-col">
         <Providers>
+          <TimezoneSync />
           <PullToRefresh />
           <Theme>{children}</Theme>
         </Providers>

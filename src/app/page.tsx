@@ -7,6 +7,7 @@ import {
 import { getUserSettingsCached } from "@/lib/queries/user-settings";
 import { SPENDING_CATEGORIES, SpendingCategory } from "@/lib/starling-types";
 import getUserAccount from "@/lib/user";
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { AutoCategoriseForm } from "./_components/auto-categorise-form";
 import { BalanceOverview } from "./_components/balance-overview";
@@ -25,13 +26,16 @@ const getDates = async (offsetStr?: string) => {
   const offset = parseInt(offsetStr ?? "0");
 
   const date = new Date(Date.now());
-  date.setUTCHours(0, 0, 0, 0);
+  const timeZone = decodeURIComponent(
+    (await cookies()).get("banko-timezone")?.value ?? "UTC",
+  );
 
   return getStartAndEndOfMonth(
     date,
     userSettings.monthBarrierOption,
     userSettings.day,
     offset,
+    timeZone,
   );
 };
 
