@@ -33,7 +33,6 @@ export class Starling {
     end: Date,
     defaultCategory: string,
   ): Promise<Transactions> {
-    console.log({ start, end });
     const res = await this.fetch(
       `feed/account/${accountId}/category/${defaultCategory}/transactions-between?minTransactionTimestamp=${start.toISOString()}&maxTransactionTimestamp=${end.toISOString()}`,
     );

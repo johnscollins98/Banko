@@ -37,6 +37,7 @@ model UserSettings {
   id                 Int                @id @unique @default(autoincrement())
   monthBarrierOption MonthBarrierOption
   day                Int
+  settleUpLink       String?
   userId             String             @unique
   User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

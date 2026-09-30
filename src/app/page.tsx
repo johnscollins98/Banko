@@ -7,6 +7,7 @@ import {
 import { getUserSettingsCached } from "@/lib/queries/user-settings";
 import { SPENDING_CATEGORIES, SpendingCategory } from "@/lib/starling-types";
 import getUserAccount from "@/lib/user";
+import { UserSettings } from "@prisma/client";
 import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { AutoCategoriseForm } from "./_components/auto-categorise-form";
@@ -16,13 +17,13 @@ import Navbar from "./_components/navbar";
 import SpendingSummary from "./_components/spending-summary";
 import { TransactionFeed } from "./_components/transaction-feed";
 
-const getDates = async (offsetStr?: string) => {
-  const { user } = await getUserAccount();
-  const userSettings = (await getUserSettingsCached(user.id)) ?? {
-    monthBarrierOption: "CALENDAR",
-    day: 1,
-  };
-
+const getDates = async (
+  userSettings: {
+    monthBarrierOption: UserSettings["monthBarrierOption"];
+    day: UserSettings["day"];
+  },
+  offsetStr?: string,
+) => {
   const offset = parseInt(offsetStr ?? "0");
 
   const date = new Date(Date.now());
@@ -44,11 +45,18 @@ export default async function Home(props: {
 }) {
   const searchParams = await props.searchParams;
   const offset = searchParams.offset;
-  const datesPromise = getDates(offset);
-
-  const { start, end } = await datesPromise;
   const { user, starling, accountId, defaultCategory, settleUpProfile } =
     await getUserAccount();
+
+  const userSettings = (await getUserSettingsCached(user.id)) ?? {
+    monthBarrierOption: "CALENDAR",
+    day: 1,
+    settleUpLink: null,
+  };
+
+  const datesPromise = getDates(userSettings, offset);
+
+  const { start, end } = await datesPromise;
 
   const defaultBudgets = await getDefaultBudgetsForUserCached(user.id, start);
   const budgetOverrides = await getBudgetOverridesForUserCached(user.id, start);
@@ -126,6 +134,7 @@ export default async function Home(props: {
         <TransactionFeed
           feedItems={feedItems}
           settleUpProfile={settleUpProfile}
+          settleUpOverride={userSettings.settleUpLink}
         />
       </div>
     </main>

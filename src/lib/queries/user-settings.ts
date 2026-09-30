@@ -4,7 +4,7 @@ import { db } from "../db";
 export const getUserSettings = (userId: string) => {
   return db.userSettings.findFirst({
     where: { userId: userId },
-    select: { monthBarrierOption: true, day: true },
+    select: { monthBarrierOption: true, day: true, settleUpLink: true },
   });
 };
 

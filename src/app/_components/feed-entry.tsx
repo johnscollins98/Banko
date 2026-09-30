@@ -21,12 +21,14 @@ interface Props {
   feedItem: Transactions["feedItems"][number];
   orderedCategories: SpendingCategory[];
   settleUpProfile: { settleUpLink: string; status: string };
+  settleUpOverride: string | null;
 }
 
 export default function FeedEntry({
   feedItem,
   orderedCategories,
   settleUpProfile,
+  settleUpOverride,
 }: Props) {
   const [optimisticFeedItem, updateOptimisticFeedItem] = useOptimistic(
     feedItem,
@@ -88,7 +90,10 @@ export default function FeedEntry({
   };
 
   const onSettleUp = async (share: boolean) => {
-    const url = new URL(`https://${settleUpProfile.settleUpLink}`);
+    const url = settleUpOverride
+      ? new URL(settleUpOverride)
+      : new URL(`https://${settleUpProfile.settleUpLink}`);
+
     url.searchParams.set("amount", settleUpAmount);
     url.searchParams.set("message", settleUpMessage);
 

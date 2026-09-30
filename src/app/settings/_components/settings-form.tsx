@@ -28,6 +28,9 @@ export const SettingsForm = ({
     useState<MonthBarrierOption>(
       userSettings?.monthBarrierOption ?? "CALENDAR",
     );
+  const [settleUpLink, setSettleUpLink] = useState(
+    userSettings?.settleUpLink ?? "",
+  );
 
   const [pending, setPending] = useOptimistic(false);
 
@@ -35,8 +38,9 @@ export const SettingsForm = ({
     () => ({
       day: parseFloat(day),
       monthBarrierOption,
+      settleUpLink: settleUpLink || null,
     }),
-    [day, monthBarrierOption],
+    [day, monthBarrierOption, settleUpLink],
   );
 
   const setMonthHandler = (v: MonthBarrierOption) => {
@@ -123,6 +127,15 @@ export const SettingsForm = ({
         <SelectItem key="dark">Dark</SelectItem>
         <SelectItem key="light">Light</SelectItem>
       </Select>
+      <Input
+        label="Settle Up Link"
+        value={settleUpLink}
+        isInvalid={!!validation.error?.formErrors.fieldErrors.settleUpLink}
+        errorMessage={validation.error?.formErrors.fieldErrors.settleUpLink}
+        onChange={(e) => setSettleUpLink(e.target.value)}
+        isClearable
+        onClear={() => setSettleUpLink("")}
+      />
       <div className="flex items-center gap-3">
         <ButtonLink href="/" prefetch className="flex w-32 gap-2">
           <CgArrowLeft />
