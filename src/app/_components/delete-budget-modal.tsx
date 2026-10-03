@@ -2,18 +2,18 @@
 
 import { removeBudget } from "@/lib/actions/set-budget";
 import { SpendingCategory } from "@/lib/starling-types";
-import { Button } from "@heroui/button";
-import {
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/modal";
 import { Budget } from "@prisma/client";
-import { useTransition } from "react";
-import SafeModal from "./safe-modal";
+import ConfirmationModal from "./confirmation-modal";
 
 export type BudgetWithOverride = Budget & { isOverride?: boolean };
+
+const formatCategory = (category: string) =>
+  category
+    .toLocaleLowerCase()
+    .replaceAll("_", " ")
+    .split(" ")
+    .map((word) => word.charAt(0).toLocaleUpperCase() + word.slice(1))
+    .join(" ");
 
 interface Props {
   isOpen: boolean;
@@ -28,46 +28,31 @@ export const DeleteBudgetModal = ({
   budget,
   onDeleted,
 }: Props) => {
-  const [deletePending, startTransition] = useTransition();
-
   const onConfirm = async () => {
-    startTransition(async () => {
-      await removeBudget({
-        category: budget.category as SpendingCategory,
-        date: new Date(budget.date),
-        isOverride: !!budget.isOverride,
-      });
-      onDeleted?.();
-      onClose();
+    await removeBudget({
+      category: budget.category as SpendingCategory,
+      date: new Date(budget.date),
+      isOverride: !!budget.isOverride,
     });
+    onDeleted?.();
   };
 
+  const categoryName = formatCategory(budget.category);
+
   return (
-    <SafeModal isOpen={isOpen} onClose={onClose}>
-      <ModalContent>
-        <ModalHeader>Delete Budget</ModalHeader>
-        <ModalBody>
-          <div>
-            Are you sure you want to delete the budget for{" "}
-            <b>{budget.category}</b> {budget.isOverride ? "for" : "starting"}{" "}
-            <b>{new Date(budget.date).toDateString()}</b>?
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <div className="flex items-center justify-end gap-1">
-            <Button onPress={onClose}>No</Button>
-            <Button
-              color="danger"
-              onPress={onConfirm}
-              isDisabled={deletePending}
-              isLoading={deletePending}
-            >
-              Yes
-            </Button>
-          </div>
-        </ModalFooter>
-      </ModalContent>
-    </SafeModal>
+    <ConfirmationModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Delete Budget?"
+      description={
+        budget.isOverride
+          ? `Delete the one-month override for ${categoryName} in ${new Date(budget.date).toLocaleDateString(undefined, { month: "long", year: "numeric" })}? The recurring budget will apply again for that month.`
+          : `Delete the recurring ${categoryName} budget starting ${new Date(budget.date).toLocaleDateString(undefined, { month: "long", year: "numeric" })}? Later months will use the previous budget until another change takes effect.`
+      }
+      confirmLabel="Delete Budget"
+      onConfirm={onConfirm}
+      danger
+    />
   );
 };
 

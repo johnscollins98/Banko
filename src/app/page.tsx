@@ -3,6 +3,7 @@ import { getAutoCategoriseMatches } from "@/lib/queries/auto-categorise-matches"
 import {
   getBudgetOverridesForUserCached,
   getDefaultBudgetsForUserCached,
+  getPreviousBudgetsForUserCached,
 } from "@/lib/queries/budgets";
 import { getUserSettingsCached } from "@/lib/queries/user-settings";
 import { SPENDING_CATEGORIES, SpendingCategory } from "@/lib/starling-types";
@@ -60,6 +61,7 @@ export default async function Home(props: {
   const { start, end } = await datesPromise;
 
   const defaultBudgets = await getDefaultBudgetsForUserCached(user.id, start);
+  const previousBudgets = await getPreviousBudgetsForUserCached(user.id, start);
   const budgetOverrides = await getBudgetOverridesForUserCached(user.id, start);
 
   const budgets = [...SPENDING_CATEGORIES, "total"]
@@ -120,6 +122,7 @@ export default async function Home(props: {
           />
           <SpendingSummary
             budgets={budgets}
+            previousBudgets={previousBudgets}
             startDate={start}
             totals={totals}
             offset={offsetNum}

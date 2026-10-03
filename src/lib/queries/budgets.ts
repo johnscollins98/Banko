@@ -34,6 +34,19 @@ export const getDefaultBudgetsForUser = (userId: string, startDate: Date) => {
   });
 };
 
+export const getPreviousBudgetsForUser = (userId: string, startDate: Date) => {
+  return db.budget.findMany({
+    where: { userId, date: { lt: startDate } },
+    orderBy: { date: "desc" },
+  });
+};
+
+export const getPreviousBudgetsForUserCached = unstable_cache(
+  getPreviousBudgetsForUser,
+  undefined,
+  { tags: ["budget"], revalidate: 3600 },
+);
+
 export const getDefaultBudgetsForUserCached = unstable_cache(
   getDefaultBudgetsForUser,
   undefined,
