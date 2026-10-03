@@ -26,6 +26,7 @@ export type BudgetsWithOverride = (Budget & { isOverride?: boolean })[];
 interface Props {
   totals: Totals<SpendingCategoryWithTotal>;
   budgets: BudgetsWithOverride;
+  previousBudgets: Budget[];
   startDate: Date;
   offset: number;
   autoCategoriseForm: ReactNode;
@@ -36,6 +37,7 @@ export const categorySchema = z.enum(SPENDING_CATEGORIES);
 export default function SpendingSummary({
   totals,
   budgets,
+  previousBudgets,
   startDate,
   offset,
   autoCategoriseForm,
@@ -102,6 +104,7 @@ export default function SpendingSummary({
             {autoCategoriseForm}
             <BudgetForm
               budgets={budgets}
+              previousBudgets={previousBudgets}
               filterBy={filterBy}
               startDate={startDate}
             />

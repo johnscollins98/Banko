@@ -57,6 +57,7 @@ export const setBudget = protectedAction(
     }
 
     revalidatePath("/");
+    revalidatePath("/budgets");
   },
 );
 
@@ -68,19 +69,17 @@ export const removeBudget = protectedAction(
   }),
   async ({ category, date, isOverride }, { user }) => {
     if (isOverride) {
-      const res = await db.budgetOverride.deleteMany({
+      await db.budgetOverride.deleteMany({
         where: {
           category,
           date,
           userId: user.id,
         },
       });
-
-      if (res.count !== 0) {
-        revalidateTag("budgetOverride", {});
-        revalidatePath("/");
-        return;
-      }
+      revalidateTag("budgetOverride", {});
+      revalidatePath("/");
+      revalidatePath("/budgets");
+      return;
     }
 
     await db.budget.delete({
@@ -95,5 +94,22 @@ export const removeBudget = protectedAction(
 
     revalidateTag("budget", {});
     revalidatePath("/");
+    revalidatePath("/budgets");
+  },
+);
+
+export const removeAllBudgetsForCategory = protectedAction(
+  z.object({
+    category: z.enum([...SPENDING_CATEGORIES, "total"]),
+  }),
+  async ({ category }, { user }) => {
+    await db.$transaction([
+      db.budget.deleteMany({ where: { category, userId: user.id } }),
+      db.budgetOverride.deleteMany({ where: { category, userId: user.id } }),
+    ]);
+    revalidateTag("budget", {});
+    revalidateTag("budgetOverride", {});
+    revalidatePath("/");
+    revalidatePath("/budgets");
   },
 );
