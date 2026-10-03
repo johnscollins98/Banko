@@ -52,6 +52,7 @@ export default async function Home(props: {
     monthBarrierOption: "CALENDAR",
     day: 1,
     settleUpLink: null,
+    useSettleUpLinkOverride: false,
   };
 
   const datesPromise = getDates(userSettings, offset);
@@ -134,7 +135,11 @@ export default async function Home(props: {
         <TransactionFeed
           feedItems={feedItems}
           settleUpProfile={settleUpProfile}
-          settleUpOverride={userSettings.settleUpLink}
+          settleUpOverride={
+            userSettings.useSettleUpLinkOverride
+              ? userSettings.settleUpLink
+              : null
+          }
         />
       </div>
     </main>

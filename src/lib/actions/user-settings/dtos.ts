@@ -7,6 +7,7 @@ export const UserSettingsSchema = z.object({
     .string()
     .url({ message: "Settle Up Link must be a valid URL." })
     .nullable(),
+  useSettleUpLinkOverride: z.boolean(),
   day: z
     .number({ message: "Day must be a number." })
     .int("Day must be an integer.")

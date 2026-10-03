@@ -34,12 +34,13 @@ model BudgetOverride {
 }
 
 model UserSettings {
-  id                 Int                @id @unique @default(autoincrement())
-  monthBarrierOption MonthBarrierOption
-  day                Int
-  settleUpLink       String?
-  userId             String             @unique
-  User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                      Int                @id @unique @default(autoincrement())
+  monthBarrierOption      MonthBarrierOption
+  day                     Int
+  settleUpLink            String?
+  useSettleUpLinkOverride Boolean            @default(false)
+  userId                  String             @unique
+  User                    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum MonthBarrierOption {
