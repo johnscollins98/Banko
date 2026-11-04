@@ -112,38 +112,49 @@ export default async function Home(props: {
   const offsetNum = parseInt(offset ?? "0");
 
   return (
-    <main className="flex min-h-dvh flex-col">
-      <Navbar showSettings rhs={<DateNavigation dates={datesPromise} />}>
-        <div className="flex flex-col gap-2 pt-4">
-          <BalanceOverview
-            totals={totals}
-            budgets={budgets}
-            offset={offsetNum}
+    <main className="flex min-h-dvh flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
+      <div className="flex flex-1 flex-col md:min-h-0 md:flex-row">
+        <aside className="md:min-h-0 md:w-96 md:flex-none md:overflow-y-auto md:px-4 md:pb-4 md:pt-0">
+          <Navbar
+            showSettings
+            rhs={<DateNavigation dates={datesPromise} />}
+            backgroundClassName="bg-transparent pb-0 shadow-none md:px-0"
           />
-          <SpendingSummary
-            budgets={budgets}
-            previousBudgets={previousBudgets}
-            startDate={start}
-            totals={totals}
-            offset={offsetNum}
-            autoCategoriseForm={
-              <Suspense fallback={null}>
-                <AutoCategoriseFormServer offset={offsetNum} />
-              </Suspense>
-            }
-          />
+          <div className="pl-safe pr-safe pt-4 pb-safe md:px-0 md:pb-0 md:pt-6">
+            <div className="flex flex-col gap-2">
+              <BalanceOverview
+                totals={totals}
+                budgets={budgets}
+                offset={offsetNum}
+              />
+              <SpendingSummary
+                budgets={budgets}
+                previousBudgets={previousBudgets}
+                startDate={start}
+                totals={totals}
+                offset={offsetNum}
+                autoCategoriseForm={
+                  <Suspense fallback={null}>
+                    <AutoCategoriseFormServer offset={offsetNum} />
+                  </Suspense>
+                }
+              />
+            </div>
+          </div>
+        </aside>
+        <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-transparent pt-4 md:min-h-0 md:min-w-0 md:flex-1 md:overflow-hidden md:rounded-2xl md:bg-transparent md:p-1">
+          <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-xl md:bg-foreground-100 md:p-3 md:dark:bg-background">
+            <TransactionFeed
+              feedItems={feedItems}
+              settleUpProfile={settleUpProfile}
+              settleUpOverride={
+                userSettings.useSettleUpLinkOverride
+                  ? userSettings.settleUpLink
+                  : null
+              }
+            />
+          </div>
         </div>
-      </Navbar>
-      <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-foreground-100 pt-4 dark:bg-background">
-        <TransactionFeed
-          feedItems={feedItems}
-          settleUpProfile={settleUpProfile}
-          settleUpOverride={
-            userSettings.useSettleUpLinkOverride
-              ? userSettings.settleUpLink
-              : null
-          }
-        />
       </div>
     </main>
   );

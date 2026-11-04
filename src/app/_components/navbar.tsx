@@ -11,14 +11,18 @@ export default function Navbar({
   showHome = false,
   rhs,
   children,
+  backgroundClassName = "bg-gradient-to-br from-pink-600 to-purple-800 pb-4 shadow-md",
 }: {
   showSettings?: boolean;
   showHome?: boolean;
   rhs?: ReactNode;
   children?: ReactNode;
+  backgroundClassName?: string;
 }) {
   return (
-    <div className="pt-safe pl-safe pr-safe bg-gradient-to-br from-pink-600 to-purple-800 pb-4 shadow-md">
+    <div
+      className={`pt-safe pl-safe pr-safe ${backgroundClassName}`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           <LogoutButton />

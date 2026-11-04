@@ -6,7 +6,6 @@ import {
   SPENDING_CATEGORIES,
   SpendingCategory,
 } from "@/lib/starling-types";
-import { Accordion, AccordionItem } from "@heroui/accordion";
 import { Progress } from "@heroui/progress";
 import { Tooltip } from "@heroui/tooltip";
 import { Budget } from "@prisma/client";
@@ -58,60 +57,52 @@ export default function SpendingSummary({
   };
 
   return (
-    <Accordion>
-      <AccordionItem
-        title="Spending Summary"
-        className="text-white"
-        classNames={{
-          indicator: "text-white",
-          title: "text-white",
-        }}
-      >
-        <div className="flex flex-col gap-6">
-          <CashFlowOverview budgets={budgets} offset={offset} totals={totals} />
-          <div className="flex flex-wrap gap-2">
-            <CategoryChip
-              totals={totals}
-              category="total"
-              filterBy={filterBy}
-              setFilterBy={setFilterBy}
-              budgets={budgets}
-            />
-            {SPENDING_CATEGORIES.filter(
-              (k) =>
-                totals[k] !== undefined ||
-                !!budgets.find((c) => c.category === k)?.amount,
-            )
-              .toSorted((a, b) => totals[a] - totals[b])
-              .map((category) => (
-                <CategoryChip
-                  category={category}
-                  key={category}
-                  totals={totals}
-                  budgets={budgets}
-                  filterBy={filterBy}
-                  setFilterBy={setFilterBy}
-                />
-              ))}
-          </div>
-          <BudgetPercent
+    <section id="spending-summary" className="text-white">
+      <h2 className="mb-2 font-semibold">Spending Summary</h2>
+      <div className="flex flex-col gap-6">
+        <CashFlowOverview budgets={budgets} offset={offset} totals={totals} />
+        <div className="flex flex-wrap gap-2">
+          <CategoryChip
             totals={totals}
-            budgets={budgets}
+            category="total"
             filterBy={filterBy}
+            setFilterBy={setFilterBy}
+            budgets={budgets}
           />
-          <OverallBudgetPercent totals={totals} budgets={budgets} />
-          <div className="flex items-center justify-between">
-            {autoCategoriseForm}
-            <BudgetForm
-              budgets={budgets}
-              previousBudgets={previousBudgets}
-              filterBy={filterBy}
-              startDate={startDate}
-            />
-          </div>
+          {SPENDING_CATEGORIES.filter(
+            (k) =>
+              totals[k] !== undefined ||
+              !!budgets.find((c) => c.category === k)?.amount,
+          )
+            .toSorted((a, b) => totals[a] - totals[b])
+            .map((category) => (
+              <CategoryChip
+                category={category}
+                key={category}
+                totals={totals}
+                budgets={budgets}
+                filterBy={filterBy}
+                setFilterBy={setFilterBy}
+              />
+            ))}
         </div>
-      </AccordionItem>
-    </Accordion>
+        <BudgetPercent
+          totals={totals}
+          budgets={budgets}
+          filterBy={filterBy}
+        />
+        <OverallBudgetPercent totals={totals} budgets={budgets} />
+        <div className="flex items-center justify-between">
+          {autoCategoriseForm}
+          <BudgetForm
+            budgets={budgets}
+            previousBudgets={previousBudgets}
+            filterBy={filterBy}
+            startDate={startDate}
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 
