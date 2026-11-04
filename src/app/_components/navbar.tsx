@@ -38,14 +38,14 @@ export default function Navbar({
       {children}
       {mobileBottomBar ? (
         <div
-          className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-center gap-2 pl-safe pr-safe pt-2 md:hidden"
+          className="pl-safe pr-safe fixed inset-x-0 bottom-0 z-50 flex items-center justify-center gap-2 pt-2 md:hidden"
           style={{
             paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
           }}
         >
           <LogoutButton
             iconSize={20}
-            className="!h-10 !w-10 !min-w-10 !p-0 rounded-full border border-foreground-300/60 bg-foreground-200/50 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
+            className="!h-10 !w-10 !min-w-10 rounded-full border border-foreground-300/60 bg-foreground-200/50 !p-0 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
           />
           <div className="flex h-10 flex-none justify-center rounded-full border border-foreground-300/60 bg-foreground-200/50 p-1 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25">
             {mobileBottomBar}
@@ -53,13 +53,13 @@ export default function Navbar({
           {showHome && (
             <HomeButton
               iconSize={20}
-              className="!h-10 !w-10 !min-w-10 !p-0 rounded-full border border-foreground-300/60 bg-foreground-200/50 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
+              className="!h-10 !w-10 !min-w-10 rounded-full border border-foreground-300/60 bg-foreground-200/50 !p-0 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
             />
           )}
           {showSettings && (
             <SettingsButton
               iconSize={20}
-              className="!h-10 !w-10 !min-w-10 !p-0 rounded-full border border-foreground-300/60 bg-foreground-200/50 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
+              className="!h-10 !w-10 !min-w-10 rounded-full border border-foreground-300/60 bg-foreground-200/50 !p-0 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
             />
           )}
         </div>
@@ -92,11 +92,7 @@ const LogoutButton = ({
         aria-label="Log out"
         isDisabled={loggingOut}
       >
-        {loggingOut ? (
-          <Spinner size="sm" />
-        ) : (
-          <MdLogout size={iconSize} />
-        )}
+        {loggingOut ? <Spinner size="sm" /> : <MdLogout size={iconSize} />}
       </Button>
     </Tooltip>
   );

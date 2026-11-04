@@ -86,11 +86,7 @@ export default function SpendingSummary({
               />
             ))}
         </div>
-        <BudgetPercent
-          totals={totals}
-          budgets={budgets}
-          filterBy={filterBy}
-        />
+        <BudgetPercent totals={totals} budgets={budgets} filterBy={filterBy} />
         <OverallBudgetPercent totals={totals} budgets={budgets} />
         <div className="flex items-center justify-between">
           {autoCategoriseForm}

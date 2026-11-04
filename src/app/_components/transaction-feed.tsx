@@ -3,6 +3,7 @@
 import { formatAsGBP } from "@/lib/currency-format";
 import { orderCategoriesByPopularity } from "@/lib/ordered-categories";
 import { Transactions } from "@/lib/starling-types";
+import { Spinner } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
 import {
   type PointerEvent,
@@ -28,6 +29,7 @@ type FeedItemGroups = Record<
 >;
 
 const DRAWER_COLLAPSED_GAP = 8;
+const DRAWER_LOADING_HEIGHT = 144;
 
 export const TransactionFeed = ({
   feedItems,
@@ -47,6 +49,7 @@ export const TransactionFeed = ({
   );
 
   const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
+  const [isDrawerLoading, setIsDrawerLoading] = useState(true);
   const [dragOffset, setDragOffset] = useState(0);
   const dragStart = useRef<{ y: number; time: number } | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -82,6 +85,16 @@ export const TransactionFeed = ({
       window.removeEventListener("resize", updateDrawerTop);
     };
   }, []);
+
+  useEffect(() => {
+    if (drawerTop === null || !isDrawerLoading) return;
+
+    const timeout = window.setTimeout(() => {
+      setIsDrawerLoading(false);
+    }, 450);
+
+    return () => window.clearTimeout(timeout);
+  }, [drawerTop, isDrawerLoading]);
 
   useEffect(() => {
     const scrollArea = scrollAreaRef.current;
@@ -216,11 +229,12 @@ export const TransactionFeed = ({
         className="fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full flex-col rounded-t-xl border border-foreground-200 bg-foreground-100 text-foreground dark:bg-background md:hidden"
         style={{
           top:
-            (drawerTop ?? 0) +
-            (isDrawerExpanded ? 0 : drawerCollapsedOffset) +
-            dragOffset,
+            isDrawerLoading
+              ? `calc(100dvh - ${DRAWER_LOADING_HEIGHT}px)`
+              : (drawerTop ?? 0) +
+                (isDrawerExpanded ? 0 : drawerCollapsedOffset) +
+                dragOffset,
           bottom: 0,
-          visibility: drawerTop === null ? "hidden" : "visible",
           transition: dragOffset !== 0 ? "none" : "top 300ms ease-out",
         }}
       >
@@ -250,40 +264,46 @@ export const TransactionFeed = ({
               "calc(3rem + max(0.75rem, env(safe-area-inset-bottom)))",
           }}
         >
-          <div className="flex flex-col gap-3 pb-4">
-            {filteredItems.length === 0 ? (
-              <div className="flex min-h-48 flex-col items-center justify-center gap-2 text-foreground-500">
-                <HiOutlineCash size={64} />
-                <div>Nothing to see here!</div>
-              </div>
-            ) : (
-              Object.entries(groupedByDay).map(([title, { total, items }]) => (
-                <div key={title}>
-                  <div className="flex items-center justify-between px-1 py-2 text-sm text-foreground-600">
-                    {title}
-                    <div
-                      className={
-                        total < 0 ? "text-blue-600 dark:text-blue-400" : ""
-                      }
-                    >
-                      {formatAsGBP(total * -1)}
+          {isDrawerLoading ? (
+            <div className="flex h-full min-h-12 items-center justify-center">
+              <Spinner size="sm" />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 pb-4">
+              {filteredItems.length === 0 ? (
+                <div className="flex min-h-48 flex-col items-center justify-center gap-2 text-foreground-500">
+                  <HiOutlineCash size={64} />
+                  <div>Nothing to see here!</div>
+                </div>
+              ) : (
+                Object.entries(groupedByDay).map(([title, { total, items }]) => (
+                  <div key={title}>
+                    <div className="flex items-center justify-between px-1 py-2 text-sm text-foreground-600">
+                      {title}
+                      <div
+                        className={
+                          total < 0 ? "text-blue-600 dark:text-blue-400" : ""
+                        }
+                      >
+                        {formatAsGBP(total * -1)}
+                      </div>
+                    </div>
+                    <div className="flex flex-1 flex-col rounded-md bg-white shadow dark:bg-foreground-100">
+                      {items.map((feedItem) => (
+                        <FeedEntry
+                          key={feedItem.feedItemUid}
+                          feedItem={feedItem}
+                          orderedCategories={categories}
+                          settleUpProfile={settleUpProfile}
+                          settleUpOverride={settleUpOverride}
+                        />
+                      ))}
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col rounded-md bg-white shadow dark:bg-foreground-100">
-                    {items.map((feedItem) => (
-                      <FeedEntry
-                        key={feedItem.feedItemUid}
-                        feedItem={feedItem}
-                        orderedCategories={categories}
-                        settleUpProfile={settleUpProfile}
-                        settleUpOverride={settleUpOverride}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="hidden min-h-0 flex-1 flex-col gap-3 overflow-y-auto md:flex">
