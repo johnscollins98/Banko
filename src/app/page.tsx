@@ -114,13 +114,18 @@ export default async function Home(props: {
   return (
     <main className="flex min-h-dvh flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
       <div className="flex flex-1 flex-col md:min-h-0 md:flex-row">
-        <aside className="md:min-h-0 md:w-96 md:flex-none md:overflow-y-auto md:px-4 md:pb-4 md:pt-0">
+        <aside className="md:min-h-0 md:w-96 md:flex-none md:overflow-y-auto md:pb-4 md:pt-0">
           <Navbar
             showSettings
-            rhs={<DateNavigation dates={datesPromise} />}
-            backgroundClassName="bg-transparent pb-0 shadow-none md:px-0"
+            rhs={
+              <div className="hidden md:block">
+                <DateNavigation dates={datesPromise} />
+              </div>
+            }
+            mobileBottomBar={<DateNavigation dates={datesPromise} mobile />}
+            backgroundClassName="bg-transparent pb-0 shadow-none"
           />
-          <div className="pl-safe pr-safe pt-4 pb-safe md:px-0 md:pb-0 md:pt-6">
+          <div className="pl-safe pr-safe pt-safe pb-safe md:px-4 md:pb-0 md:pt-6">
             <div className="flex flex-col gap-2">
               <BalanceOverview
                 totals={totals}

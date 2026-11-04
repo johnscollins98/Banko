@@ -213,12 +213,13 @@ export const TransactionFeed = ({
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div
         data-feed-drawer
-        className="fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full flex-col rounded-t-xl border border-foreground-200 bg-background text-foreground md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full flex-col rounded-t-xl border border-foreground-200 bg-foreground-100 text-foreground dark:bg-background md:hidden"
         style={{
           top:
             (drawerTop ?? 0) +
             (isDrawerExpanded ? 0 : drawerCollapsedOffset) +
             dragOffset,
+          bottom: 0,
           visibility: drawerTop === null ? "hidden" : "visible",
           transition: dragOffset !== 0 ? "none" : "top 300ms ease-out",
         }}
@@ -239,11 +240,15 @@ export const TransactionFeed = ({
             }
           }}
         >
-          <span className="h-1.5 w-9 rounded-full bg-white shadow-sm dark:bg-white" />
+          <span className="h-1.5 w-9 rounded-full bg-foreground-300 dark:bg-white" />
         </button>
         <div
           ref={scrollAreaRef}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-safe"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4"
+          style={{
+            paddingBottom:
+              "calc(3rem + max(0.75rem, env(safe-area-inset-bottom)))",
+          }}
         >
           <div className="flex flex-col gap-3 pb-4">
             {filteredItems.length === 0 ? (
