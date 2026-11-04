@@ -126,7 +126,7 @@ export default async function Home(props: {
             backgroundClassName="bg-transparent pb-0 shadow-none"
           />
           <div className="pl-safe pr-safe pt-safe pb-safe md:px-4 md:pb-0 md:pt-6">
-            <div className="flex flex-col gap-2">
+            <div className="mt-8 flex flex-col gap-2 md:mt-0">
               <BalanceOverview
                 totals={totals}
                 budgets={budgets}
