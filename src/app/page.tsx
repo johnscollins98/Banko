@@ -114,7 +114,7 @@ export default async function Home(props: {
   return (
     <main className="flex min-h-svh flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
       <div className="flex flex-1 flex-col md:min-h-0 md:flex-row">
-        <aside className="md:min-h-0 md:w-96 md:flex-none md:overflow-y-auto md:pb-4 md:pt-0">
+        <aside className="pl-safe pr-safe pt-safe pb-safe md:min-h-0 md:w-[calc(25rem_+_env(safe-area-inset-left))] md:flex-none md:overflow-y-auto md:pr-4">
           <Navbar
             showSettings
             rhs={
@@ -123,9 +123,9 @@ export default async function Home(props: {
               </div>
             }
             mobileBottomBar={<DateNavigation dates={datesPromise} mobile />}
-            backgroundClassName="bg-transparent pb-0 shadow-none"
+            backgroundClassName="bg-transparent pb-0 shadow-none md:pt-0 md:pl-0 md:pr-0"
           />
-          <div className="pl-safe pr-safe pt-safe pb-safe md:px-4 md:pb-0 md:pt-6">
+          <div className="md:px-0 md:pb-0 md:pt-6">
             <div className="mt-8 flex flex-col gap-2 md:mt-0">
               <BalanceOverview
                 totals={totals}
@@ -147,17 +147,19 @@ export default async function Home(props: {
             </div>
           </div>
         </aside>
-        <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-transparent pt-4 md:min-h-0 md:min-w-0 md:flex-1 md:overflow-hidden md:rounded-2xl md:bg-transparent md:p-1">
-          <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-xl md:bg-foreground-100 md:p-3 md:dark:bg-background">
-            <TransactionFeed
-              feedItems={feedItems}
-              settleUpProfile={settleUpProfile}
-              settleUpOverride={
-                userSettings.useSettleUpLinkOverride
-                  ? userSettings.settleUpLink
-                  : null
-              }
-            />
+        <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-transparent pt-4 md:min-h-0 md:min-w-0 md:flex-1 md:overflow-hidden md:pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pl-0 md:pr-[max(0.5rem,env(safe-area-inset-right))] md:pt-[max(0.5rem,env(safe-area-inset-top))]">
+          <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-2xl md:bg-transparent md:p-0.5">
+            <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-xl md:bg-foreground-100 md:p-3 md:dark:bg-background">
+              <TransactionFeed
+                feedItems={feedItems}
+                settleUpProfile={settleUpProfile}
+                settleUpOverride={
+                  userSettings.useSettleUpLinkOverride
+                    ? userSettings.settleUpLink
+                    : null
+                }
+              />
+            </div>
           </div>
         </div>
       </div>

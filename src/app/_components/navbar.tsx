@@ -23,7 +23,7 @@ export default function Navbar({
 }) {
   return (
     <div
-      className={`${mobileBottomBar ? "md:pt-safe md:pl-safe md:pr-safe" : "pt-safe pl-safe pr-safe"} ${backgroundClassName}`}
+      className={`${mobileBottomBar ? "md:pt-0 md:pl-0 md:pr-0" : "pt-safe pl-safe pr-safe"} ${backgroundClassName}`}
     >
       <div
         className={`items-center justify-between ${mobileBottomBar ? "hidden md:flex" : "flex"}`}
