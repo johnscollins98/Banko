@@ -112,7 +112,7 @@ export default async function Home(props: {
   const offsetNum = parseInt(offset ?? "0");
 
   return (
-    <main className="flex min-h-dvh flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
+    <main className="flex min-h-svh flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
       <div className="flex flex-1 flex-col md:min-h-0 md:flex-row">
         <aside className="md:min-h-0 md:w-96 md:flex-none md:overflow-y-auto md:pb-4 md:pt-0">
           <Navbar
