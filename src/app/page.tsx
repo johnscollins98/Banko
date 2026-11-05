@@ -112,38 +112,56 @@ export default async function Home(props: {
   const offsetNum = parseInt(offset ?? "0");
 
   return (
-    <main className="flex min-h-dvh flex-col">
-      <Navbar showSettings rhs={<DateNavigation dates={datesPromise} />}>
-        <div className="flex flex-col gap-2 pt-4">
-          <BalanceOverview
-            totals={totals}
-            budgets={budgets}
-            offset={offsetNum}
-          />
-          <SpendingSummary
-            budgets={budgets}
-            previousBudgets={previousBudgets}
-            startDate={start}
-            totals={totals}
-            offset={offsetNum}
-            autoCategoriseForm={
-              <Suspense fallback={null}>
-                <AutoCategoriseFormServer offset={offsetNum} />
-              </Suspense>
+    <main className="flex h-[100lvh] flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
+      <div className="flex flex-1 flex-col md:min-h-0 md:flex-row">
+        <aside className="pl-safe pr-safe pt-safe pb-safe md:min-h-0 md:w-[calc(25rem_+_env(safe-area-inset-left))] md:flex-none md:overflow-y-auto md:pr-4">
+          <Navbar
+            showSettings
+            rhs={
+              <div className="hidden md:block">
+                <DateNavigation dates={datesPromise} />
+              </div>
             }
+            mobileBottomBar={<DateNavigation dates={datesPromise} mobile />}
+            backgroundClassName="bg-transparent pb-0 shadow-none md:pt-0 md:pl-0 md:pr-0"
           />
+          <div className="md:px-0 md:pb-0 md:pt-6">
+            <div className="mt-8 flex flex-col gap-2 md:mt-0">
+              <BalanceOverview
+                totals={totals}
+                budgets={budgets}
+                offset={offsetNum}
+              />
+              <SpendingSummary
+                budgets={budgets}
+                previousBudgets={previousBudgets}
+                startDate={start}
+                totals={totals}
+                offset={offsetNum}
+                autoCategoriseForm={
+                  <Suspense fallback={null}>
+                    <AutoCategoriseFormServer offset={offsetNum} />
+                  </Suspense>
+                }
+              />
+            </div>
+          </div>
+        </aside>
+        <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-transparent pt-4 md:min-h-0 md:min-w-0 md:flex-1 md:overflow-hidden md:pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pl-0 md:pr-[max(0.5rem,env(safe-area-inset-right))] md:pt-[max(0.5rem,env(safe-area-inset-top))]">
+          <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-2xl md:bg-transparent md:p-0.5">
+            <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-xl md:bg-foreground-100 md:p-3 md:dark:bg-background">
+              <TransactionFeed
+                feedItems={feedItems}
+                settleUpProfile={settleUpProfile}
+                settleUpOverride={
+                  userSettings.useSettleUpLinkOverride
+                    ? userSettings.settleUpLink
+                    : null
+                }
+              />
+            </div>
+          </div>
         </div>
-      </Navbar>
-      <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-foreground-100 pt-4 dark:bg-background">
-        <TransactionFeed
-          feedItems={feedItems}
-          settleUpProfile={settleUpProfile}
-          settleUpOverride={
-            userSettings.useSettleUpLinkOverride
-              ? userSettings.settleUpLink
-              : null
-          }
-        />
       </div>
     </main>
   );
