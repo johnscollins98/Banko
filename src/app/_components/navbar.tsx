@@ -5,6 +5,10 @@ import { signOut } from "next-auth/react";
 import { ReactNode, startTransition, useOptimistic } from "react";
 import { MdHome, MdLogout, MdSettings } from "react-icons/md";
 import { ButtonLink } from "./button-link";
+import {
+  glassCapsuleClassName,
+  glassIconButtonClassName,
+} from "./glass-styles";
 
 export default function Navbar({
   showSettings = false,
@@ -12,6 +16,8 @@ export default function Navbar({
   rhs,
   children,
   mobileBottomBar,
+  mobileBottomBarIsButton = false,
+  desktopSafePadding = false,
   backgroundClassName = "bg-gradient-to-br from-pink-600 to-purple-800 pb-4 shadow-md",
 }: {
   showSettings?: boolean;
@@ -19,19 +25,25 @@ export default function Navbar({
   rhs?: ReactNode;
   children?: ReactNode;
   mobileBottomBar?: ReactNode;
+  mobileBottomBarIsButton?: boolean;
+  desktopSafePadding?: boolean;
   backgroundClassName?: string;
 }) {
   return (
     <div
-      className={`${mobileBottomBar ? "md:pt-0 md:pl-0 md:pr-0" : "pt-safe pl-safe pr-safe"} ${backgroundClassName}`}
+      className={`${mobileBottomBar ? `md:pt-safe ${desktopSafePadding ? "md:pl-safe md:pr-safe" : "md:pl-0 md:pr-0"}` : "pt-safe pl-safe pr-safe"} ${backgroundClassName}`}
     >
       <div
         className={`items-center justify-between ${mobileBottomBar ? "hidden md:flex" : "flex"}`}
       >
         <div className="flex gap-2">
-          <LogoutButton />
-          {showHome && <HomeButton />}
-          {showSettings && <SettingsButton />}
+          <LogoutButton iconSize={20} className={glassIconButtonClassName} />
+          {showHome && (
+            <HomeButton iconSize={20} className={glassIconButtonClassName} />
+          )}
+          {showSettings && (
+            <SettingsButton iconSize={20} className={glassIconButtonClassName} />
+          )}
         </div>
         {rhs}
       </div>
@@ -45,21 +57,25 @@ export default function Navbar({
         >
           <LogoutButton
             iconSize={20}
-            className="!h-10 !w-10 !min-w-10 rounded-full border border-foreground-300/60 bg-foreground-200/50 !p-0 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
+            className={glassIconButtonClassName}
           />
-          <div className="flex h-10 flex-none justify-center rounded-full border border-foreground-300/60 bg-foreground-200/50 p-1 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25">
-            {mobileBottomBar}
-          </div>
-          {showHome && (
-            <HomeButton
-              iconSize={20}
-              className="!h-10 !w-10 !min-w-10 rounded-full border border-foreground-300/60 bg-foreground-200/50 !p-0 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
-            />
+          {mobileBottomBarIsButton ? (
+            mobileBottomBar
+          ) : (
+            <div className={`h-10 flex-none ${glassCapsuleClassName}`}>
+              {mobileBottomBar}
+            </div>
           )}
           {showSettings && (
             <SettingsButton
               iconSize={20}
-              className="!h-10 !w-10 !min-w-10 rounded-full border border-foreground-300/60 bg-foreground-200/50 !p-0 text-foreground shadow-sm backdrop-blur-xl dark:border-white/20 dark:bg-background/25"
+              className={glassIconButtonClassName}
+            />
+          )}
+          {showHome && (
+            <HomeButton
+              iconSize={20}
+              className={glassIconButtonClassName}
             />
           )}
         </div>

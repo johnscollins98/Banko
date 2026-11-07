@@ -42,6 +42,7 @@ import {
 } from "react-icons/hi2";
 import ConfirmationModal from "./confirmation-modal";
 import SafeModal from "./safe-modal";
+import { glassButtonClassName } from "./glass-styles";
 
 export interface Props {
   budgets: (Budget & { isOverride?: boolean })[];
@@ -162,7 +163,10 @@ export const BudgetForm = ({
     <>
       <Dropdown placement="top-start">
         <DropdownTrigger>
-          <Button startContent={<HiOutlineBanknotes size={18} />}>
+          <Button
+            startContent={<HiOutlineBanknotes size={18} />}
+            className={`!h-10 ${glassButtonClassName}`}
+          >
             Budgets
           </Button>
         </DropdownTrigger>

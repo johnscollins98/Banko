@@ -19,10 +19,23 @@ export default async function ManageBudgets(props: {
 
   return (
     <div>
-      <Navbar showHome />
-      <div className="pl-safe pr-safe pb-safe pt-4">
+      <Navbar
+        showHome
+        desktopSafePadding
+        mobileBottomBar={
+          <CategorySelect
+            value={searchParams.category ?? "total"}
+            className="mb-0 w-[min(58vw,18rem)]"
+            compact
+          />
+        }
+        backgroundClassName="bg-transparent pb-0 shadow-none md:bg-gradient-to-br md:from-pink-600 md:to-purple-800 md:pb-4 md:shadow-md"
+      />
+      <div className="pl-safe pr-safe pb-[calc(5rem+env(safe-area-inset-bottom))] pt-4 md:pb-safe">
         <h1 className="mb-4 text-3xl font-bold">Manage Budgets</h1>
-        <CategorySelect value={searchParams.category ?? "total"} />
+        <div className="hidden md:block">
+          <CategorySelect value={searchParams.category ?? "total"} />
+        </div>
         {budgetsForCategory.length > 0 ? (
           <div className="flex flex-col gap-2">
             {budgetsForCategory.map((budget) => (

@@ -1,6 +1,5 @@
 "use client";
 
-import { ButtonLink } from "@/app/_components/button-link";
 import {
   UserSettingsDto,
   UserSettingsSchema,
@@ -16,7 +15,6 @@ import {
   useOptimistic,
   useState,
 } from "react";
-import { CgArrowLeft } from "react-icons/cg";
 
 export const SettingsForm = ({
   userSettings,
@@ -74,6 +72,7 @@ export const SettingsForm = ({
 
   return (
     <form
+      id="settings-form"
       onSubmit={onSubmitHandler}
       className="flex flex-col gap-5"
       ref={() => setMounted(true)}
@@ -156,11 +155,7 @@ export const SettingsForm = ({
           <SelectItem key="light">Light</SelectItem>
         </Select>
       </section>
-      <div className="flex items-center gap-3">
-        <ButtonLink href="/" prefetch className="flex w-32 gap-2">
-          <CgArrowLeft />
-          Home Page
-        </ButtonLink>
+      <div className="hidden items-center gap-3 md:flex">
         <Button
           type="submit"
           color="primary"

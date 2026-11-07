@@ -4,13 +4,15 @@ import { StartAndEndDate } from "@/lib/date-range";
 import { useSearchParams } from "next/navigation";
 import { Suspense, use } from "react";
 import {
-  FaArrowLeft,
-  FaArrowRight,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
 import { ButtonLink } from "./button-link";
 import DateDisplay from "./date";
+import {
+  glassCapsuleClassName,
+  glassCapsuleControlClassName,
+} from "./glass-styles";
 
 interface Props {
   dates: Promise<StartAndEndDate>;
@@ -67,21 +69,32 @@ export const DateNavigation = ({ dates, mobile = false }: Props) => {
   }
 
   return (
-    <div className="flex gap-1">
-      <ButtonLink size="sm" href={`.?${createRedirectLink(offset - 1)}`}>
-        <FaArrowLeft />
+    <div className={`flex h-12 gap-1 ${glassCapsuleClassName}`}>
+      <ButtonLink
+        size="sm"
+        href={`.?${createRedirectLink(offset - 1)}`}
+        aria-label="Previous month"
+        className={`${glassCapsuleControlClassName} !w-10 !min-w-10 px-0`}
+      >
+        <FaChevronLeft size={14} />
       </ButtonLink>
       <ButtonLink
         size="sm"
-        className="w-32"
+        aria-label="Go to current month"
+        className={`${glassCapsuleControlClassName} !w-32 !min-w-32 px-2 text-xs font-medium`}
         href={`.?${createRedirectLink(0)}`}
       >
         <Suspense>
           <TodaysDate datePromise={dates} />
         </Suspense>
       </ButtonLink>
-      <ButtonLink size="sm" href={`.?${createRedirectLink(offset + 1)}`}>
-        <FaArrowRight />
+      <ButtonLink
+        size="sm"
+        href={`.?${createRedirectLink(offset + 1)}`}
+        aria-label="Next month"
+        className={`${glassCapsuleControlClassName} !w-10 !min-w-10 px-0`}
+      >
+        <FaChevronRight size={14} />
       </ButtonLink>
     </div>
   );

@@ -12,16 +12,32 @@ export const formatCategoryString = (c: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-export const CategorySelect = ({ value }: { value?: string }) => {
+export const CategorySelect = ({
+  value,
+  className = "mb-4",
+  compact = false,
+}: {
+  value?: string;
+  className?: string;
+  compact?: boolean;
+}) => {
   const router = useRouter();
 
   const options = [...SPENDING_CATEGORIES, "total"];
 
   return (
-    <div className="mb-4">
+    <div className={className}>
       <Autocomplete
         label="Category"
-        size="lg"
+        size={compact ? "sm" : "lg"}
+        variant={compact ? "flat" : "bordered"}
+        classNames={
+          compact
+            ? {
+                base: "[&_[data-slot=input-wrapper]]:!bg-transparent [&_[data-slot=input-wrapper]]:!shadow-none [&_[data-slot=input-wrapper]]:!border-0 [&_[data-slot=input]]:!text-foreground",
+              }
+            : undefined
+        }
         selectedKey={value ?? "total"}
         defaultItems={options.map((c) => ({
           label: formatCategoryString(c),

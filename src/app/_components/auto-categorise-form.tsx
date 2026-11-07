@@ -15,6 +15,10 @@ import React, { useOptimistic, useTransition } from "react";
 import { PiShootingStar } from "react-icons/pi";
 import { AutoCategoriseMatchCard } from "./auto-categorise-match-card";
 import SafeModal from "./safe-modal";
+import {
+  glassButtonClassName,
+  glassIconButtonClassName,
+} from "./glass-styles";
 
 interface Props {
   matches: TransactionMatch[];
@@ -226,13 +230,13 @@ export const AutoCategoriseForm = ({ matches }: Props) => {
       <div>
         <Button
           onPress={handleOpen}
-          className="flex items-center gap-1 sm:hidden"
+          className={`${glassIconButtonClassName} sm:hidden`}
           isIconOnly
         >
           <PiShootingStar />
         </Button>
         <Button
-          className="hidden items-center gap-2 sm:flex"
+          className={`hidden h-10 px-4 ${glassButtonClassName} sm:flex`}
           onPress={handleOpen}
         >
           <PiShootingStar />
