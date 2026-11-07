@@ -29,7 +29,7 @@ export default async function ManageBudgets(props: {
           />
         }
       />
-      <div className="pl-safe pr-safe pt-safe md:pb-safe pb-safe">
+      <div className="pl-safe pr-safe pt-safe md:pb-safe pb-[calc(5rem+env(safe-area-inset-bottom))]">
         <div className="mt-8 md:mt-0">
           <h1 className="mb-4 text-3xl font-bold">Manage Budgets</h1>
           <div className="hidden md:block">
