@@ -36,7 +36,7 @@ export const CashFlowOverview = ({ totals, budgets, offset }: Props) => {
   const cashflowAfterBudget = actualCashflow + remainingSpend;
 
   return (
-    <div className="rounded-lg bg-foreground-200 p-4">
+    <div className="rounded-lg bg-foreground-200 p-4 dark:bg-background">
       <div className="flex items-baseline justify-between">
         <div className="font-bold text-foreground">Cash Flow</div>
         <BalanceDisplay
