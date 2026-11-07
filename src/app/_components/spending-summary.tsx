@@ -166,7 +166,11 @@ const BudgetPercentBar = ({
   label: string;
 }) => {
   const percentColor =
-    budget > 0 ? "bg-success" : budget > amount ? "bg-danger" : "bg-secondary";
+    budget > 0
+      ? "bg-success"
+      : budget > amount
+        ? "bg-danger"
+        : "bg-secondary-600 dark:bg-secondary-100";
 
   const amountString = formatAsGBP(amount);
 
@@ -256,7 +260,7 @@ const CategoryChip = ({
       ? "bg-success text-white"
       : percentOfBudget > 1
         ? "bg-danger text-white"
-        : "bg-secondary text-white";
+        : "bg-secondary-600 dark:bg-secondary-100 text-white";
 
   const pillColour =
     category === "total" && budget === undefined
