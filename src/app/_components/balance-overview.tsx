@@ -52,7 +52,7 @@ export const BalanceOverview = async ({
     balancePennies + totals.upcoming + remainingBudgetSpend;
 
   return (
-    <div className="flex items-center justify-between rounded-lg bg-primary-600 px-4 py-3 text-white dark:bg-primary-100">
+    <div className="flex items-center justify-between rounded-lg bg-secondary-600 px-4 py-3 text-white dark:bg-secondary-100">
       <BalanceDisplay
         amount={balancePennies / 100}
         label="Balance"
