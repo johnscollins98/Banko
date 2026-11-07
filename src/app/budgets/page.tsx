@@ -18,7 +18,7 @@ export default async function ManageBudgets(props: {
   );
 
   return (
-    <div>
+    <div className="min-h-[100lvh] md:min-h-0">
       <Navbar
         showHome
         desktopSafePadding
@@ -31,25 +31,27 @@ export default async function ManageBudgets(props: {
         }
         backgroundClassName="bg-transparent pb-0 shadow-none md:bg-gradient-to-br md:from-pink-600 md:to-purple-800 md:pb-4 md:shadow-md"
       />
-      <div className="pl-safe pr-safe pb-[calc(5rem+env(safe-area-inset-bottom))] pt-4 md:pb-safe">
-        <h1 className="mb-4 text-3xl font-bold">Manage Budgets</h1>
-        <div className="hidden md:block">
-          <CategorySelect value={searchParams.category ?? "total"} />
-        </div>
-        {budgetsForCategory.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {budgetsForCategory.map((budget) => (
-              <BudgetItem key={budget.id} budget={budget} />
-            ))}
+      <div className="pl-safe pr-safe pt-safe pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-safe">
+        <div className="mt-8 md:mt-0">
+          <h1 className="mb-4 text-3xl font-bold">Manage Budgets</h1>
+          <div className="hidden md:block">
+            <CategorySelect value={searchParams.category ?? "total"} />
           </div>
-        ) : (
-          <div className="mt-32 flex flex-col items-center justify-center gap-2 text-3xl text-foreground-500">
-            <div>
-              <HiOutlineCash size={"100px"} />
+          {budgetsForCategory.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              {budgetsForCategory.map((budget) => (
+                <BudgetItem key={budget.id} budget={budget} />
+              ))}
             </div>
-            <div>Nothing to see here!</div>
-          </div>
-        )}
+          ) : (
+            <div className="mt-32 flex flex-col items-center justify-center gap-2 text-3xl text-foreground-500">
+              <div>
+                <HiOutlineCash size={"100px"} />
+              </div>
+              <div>Nothing to see here!</div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

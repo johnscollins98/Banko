@@ -8,7 +8,7 @@ export default async function SettingsPage() {
   const settings = await getUserSettingsCached(user.id);
 
   return (
-    <div>
+    <div className="min-h-[100lvh] md:min-h-0">
       {/* TODO - this should really be in a layout */}
       <Navbar
         showHome
@@ -26,8 +26,10 @@ export default async function SettingsPage() {
           </button>
         }
       />
-      <div className="pl-safe pr-safe pb-[calc(5rem+env(safe-area-inset-bottom))] pt-4 md:pb-safe">
-        <SettingsForm userSettings={settings} />
+      <div className="pl-safe pr-safe pt-safe pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-safe">
+        <div className="mt-8 md:mt-0">
+          <SettingsForm userSettings={settings} />
+        </div>
       </div>
     </div>
   );

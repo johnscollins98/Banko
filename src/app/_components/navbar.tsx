@@ -18,6 +18,7 @@ export default function Navbar({
   mobileBottomBar,
   mobileBottomBarIsButton = false,
   desktopSafePadding = false,
+  desktopPadding = true,
   backgroundClassName = "bg-gradient-to-br from-pink-600 to-purple-800 pb-4 shadow-md",
 }: {
   showSettings?: boolean;
@@ -27,11 +28,18 @@ export default function Navbar({
   mobileBottomBar?: ReactNode;
   mobileBottomBarIsButton?: boolean;
   desktopSafePadding?: boolean;
+  desktopPadding?: boolean;
   backgroundClassName?: string;
 }) {
+  const navbarPaddingClassName = getNavbarPaddingClassName({
+    mobileBottomBar: Boolean(mobileBottomBar),
+    desktopSafePadding,
+    desktopPadding,
+  });
+
   return (
     <div
-      className={`${mobileBottomBar ? `md:pt-safe ${desktopSafePadding ? "md:pl-safe md:pr-safe" : "md:pl-0 md:pr-0"}` : "pt-safe pl-safe pr-safe"} ${backgroundClassName}`}
+      className={`${navbarPaddingClassName} ${backgroundClassName}`}
     >
       <div
         className={`items-center justify-between ${mobileBottomBar ? "hidden md:flex" : "flex"}`}
@@ -83,6 +91,29 @@ export default function Navbar({
     </div>
   );
 }
+
+const getNavbarPaddingClassName = ({
+  mobileBottomBar,
+  desktopSafePadding,
+  desktopPadding,
+}: {
+  mobileBottomBar: boolean;
+  desktopSafePadding: boolean;
+  desktopPadding: boolean;
+}) => {
+  if (!mobileBottomBar) return "pt-safe pl-safe pr-safe";
+
+  const verticalPadding = desktopPadding
+    ? "md:pt-[max(8px,env(safe-area-inset-top))] md:pb-2"
+    : "md:pt-0 md:pb-0";
+  const horizontalPadding = desktopSafePadding
+    ? "md:pl-safe md:pr-safe"
+    : desktopPadding
+      ? "md:pl-4 md:pr-4"
+      : "md:pl-0 md:pr-0";
+
+  return `${verticalPadding} ${horizontalPadding}`;
+};
 
 const LogoutButton = ({
   className = "",
