@@ -1,18 +1,13 @@
 "use client";
 
 import { StartAndEndDate } from "@/lib/date-range";
+import { cn } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, use } from "react";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-} from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { ButtonLink } from "./button-link";
 import DateDisplay from "./date";
-import {
-  glassCapsuleClassName,
-  glassCapsuleControlClassName,
-} from "./glass-styles";
+import { glassCapsuleClassName } from "./glass-styles";
 
 interface Props {
   dates: Promise<StartAndEndDate>;
@@ -35,53 +30,25 @@ export const DateNavigation = ({ dates, mobile = false }: Props) => {
     return params.toString();
   };
 
-  if (mobile) {
-    return (
-      <div className="flex items-center gap-0.5">
-        <ButtonLink
-          size="sm"
-          href={`.?${createRedirectLink(offset - 1)}`}
-          aria-label="Previous month"
-          className="h-8 w-8 min-w-8 rounded-full bg-transparent px-0 text-foreground hover:bg-foreground-100"
-        >
-          <FaChevronLeft size={14} />
-        </ButtonLink>
-        <ButtonLink
-          size="sm"
-          aria-label="Go to current month"
-          className="h-8 w-28 min-w-28 rounded-full bg-transparent px-2 text-xs font-medium text-foreground hover:bg-foreground-100"
-          href={`.?${createRedirectLink(0)}`}
-        >
-          <Suspense>
-            <TodaysDate datePromise={dates} />
-          </Suspense>
-        </ButtonLink>
-        <ButtonLink
-          size="sm"
-          href={`.?${createRedirectLink(offset + 1)}`}
-          aria-label="Next month"
-          className="h-8 w-8 min-w-8 rounded-full bg-transparent px-0 text-foreground hover:bg-foreground-100"
-        >
-          <FaChevronRight size={14} />
-        </ButtonLink>
-      </div>
-    );
-  }
-
   return (
-    <div className={`flex h-12 gap-1 ${glassCapsuleClassName}`}>
+    <div
+      className={cn(
+        "flex items-center gap-0.5",
+        mobile ? "" : glassCapsuleClassName,
+      )}
+    >
       <ButtonLink
         size="sm"
         href={`.?${createRedirectLink(offset - 1)}`}
         aria-label="Previous month"
-        className={`${glassCapsuleControlClassName} !w-10 !min-w-10 px-0`}
+        className="h-8 w-8 min-w-8 rounded-full bg-transparent px-0 text-foreground hover:bg-foreground-100"
       >
         <FaChevronLeft size={14} />
       </ButtonLink>
       <ButtonLink
         size="sm"
         aria-label="Go to current month"
-        className={`${glassCapsuleControlClassName} !w-32 !min-w-32 px-2 text-xs font-medium`}
+        className="h-8 w-28 min-w-28 rounded-full bg-transparent px-2 text-xs font-medium text-foreground hover:bg-foreground-100"
         href={`.?${createRedirectLink(0)}`}
       >
         <Suspense>
@@ -92,7 +59,7 @@ export const DateNavigation = ({ dates, mobile = false }: Props) => {
         size="sm"
         href={`.?${createRedirectLink(offset + 1)}`}
         aria-label="Next month"
-        className={`${glassCapsuleControlClassName} !w-10 !min-w-10 px-0`}
+        className="h-8 w-8 min-w-8 rounded-full bg-transparent px-0 text-foreground hover:bg-foreground-100"
       >
         <FaChevronRight size={14} />
       </ButtonLink>

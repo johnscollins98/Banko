@@ -21,8 +21,6 @@ export default async function ManageBudgets(props: {
     <div className="min-h-[100lvh] md:min-h-0">
       <Navbar
         showHome
-        desktopSafePadding
-        desktopPadding={false}
         mobileBottomBar={
           <CategorySelect
             value={searchParams.category ?? "total"}
@@ -30,9 +28,8 @@ export default async function ManageBudgets(props: {
             compact
           />
         }
-        backgroundClassName="bg-transparent pb-0 shadow-none md:bg-gradient-to-br md:from-pink-600 md:to-purple-800 md:shadow-md"
       />
-      <div className="pl-safe pr-safe pt-safe pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-safe">
+      <div className="pl-safe pr-safe pt-safe md:pb-safe pb-safe">
         <div className="mt-8 md:mt-0">
           <h1 className="mb-4 text-3xl font-bold">Manage Budgets</h1>
           <div className="hidden md:block">

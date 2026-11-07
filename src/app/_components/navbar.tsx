@@ -17,9 +17,9 @@ export default function Navbar({
   children,
   mobileBottomBar,
   mobileBottomBarIsButton = false,
-  desktopSafePadding = false,
-  desktopPadding = true,
-  backgroundClassName = "bg-gradient-to-br from-pink-600 to-purple-800 pb-4 shadow-md",
+  isTopLevelBar = true,
+  backgroundClassName = "transparent",
+  dividerClassName = "border-divider md:border-b md:shadow-sm",
 }: {
   showSettings?: boolean;
   showHome?: boolean;
@@ -27,19 +27,18 @@ export default function Navbar({
   children?: ReactNode;
   mobileBottomBar?: ReactNode;
   mobileBottomBarIsButton?: boolean;
-  desktopSafePadding?: boolean;
-  desktopPadding?: boolean;
+  isTopLevelBar?: boolean;
   backgroundClassName?: string;
+  dividerClassName?: string;
 }) {
   const navbarPaddingClassName = getNavbarPaddingClassName({
     mobileBottomBar: Boolean(mobileBottomBar),
-    desktopSafePadding,
-    desktopPadding,
+    isTopLevelBar, // top level bar needs safe area padding on desktop, but not the inner bar
   });
 
   return (
     <div
-      className={`${navbarPaddingClassName} ${backgroundClassName}`}
+      className={`${navbarPaddingClassName} ${backgroundClassName} ${dividerClassName}`}
     >
       <div
         className={`items-center justify-between ${mobileBottomBar ? "hidden md:flex" : "flex"}`}
@@ -50,7 +49,10 @@ export default function Navbar({
             <HomeButton iconSize={20} className={glassIconButtonClassName} />
           )}
           {showSettings && (
-            <SettingsButton iconSize={20} className={glassIconButtonClassName} />
+            <SettingsButton
+              iconSize={20}
+              className={glassIconButtonClassName}
+            />
           )}
         </div>
         {rhs}
@@ -63,10 +65,7 @@ export default function Navbar({
             paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
           }}
         >
-          <LogoutButton
-            iconSize={20}
-            className={glassIconButtonClassName}
-          />
+          <LogoutButton iconSize={20} className={glassIconButtonClassName} />
           {mobileBottomBarIsButton ? (
             mobileBottomBar
           ) : (
@@ -81,10 +80,7 @@ export default function Navbar({
             />
           )}
           {showHome && (
-            <HomeButton
-              iconSize={20}
-              className={glassIconButtonClassName}
-            />
+            <HomeButton iconSize={20} className={glassIconButtonClassName} />
           )}
         </div>
       ) : null}
@@ -94,23 +90,18 @@ export default function Navbar({
 
 const getNavbarPaddingClassName = ({
   mobileBottomBar,
-  desktopSafePadding,
-  desktopPadding,
+  isTopLevelBar,
 }: {
   mobileBottomBar: boolean;
-  desktopSafePadding: boolean;
-  desktopPadding: boolean;
+  isTopLevelBar: boolean;
 }) => {
   if (!mobileBottomBar) return "pt-safe pl-safe pr-safe";
 
-  const verticalPadding = desktopPadding
-    ? "md:pt-[max(8px,env(safe-area-inset-top))] md:pb-2"
-    : "md:pt-2 md:pb-2";
-  const horizontalPadding = desktopSafePadding
+  const verticalPadding = isTopLevelBar ? "md:pt-2 md:pb-2" : "md:pt-0 md:pb-2";
+
+  const horizontalPadding = isTopLevelBar
     ? "md:pl-safe md:pr-safe"
-    : desktopPadding
-      ? "md:pl-4 md:pr-4"
-      : "md:pl-0 md:pr-0";
+    : "md:pl-0 md:pr-0";
 
   return `${verticalPadding} ${horizontalPadding}`;
 };

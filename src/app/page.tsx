@@ -114,7 +114,7 @@ export default async function Home(props: {
   return (
     <main className="flex h-[100lvh] flex-col bg-gradient-to-br from-pink-600 to-purple-800 md:h-dvh md:overflow-hidden">
       <div className="flex flex-1 flex-col md:min-h-0 md:flex-row">
-        <aside className="pl-safe pr-safe pt-safe pb-safe md:min-h-0 md:w-[calc(25rem_+_env(safe-area-inset-left))] md:flex-none md:overflow-y-auto md:pr-4">
+        <aside className="pl-safe pr-safe pt-safe pb-safe md:mr-4 md:min-h-0 md:w-[calc(25rem_+_env(safe-area-inset-left))] md:flex-none md:overflow-y-auto md:pr-0">
           <Navbar
             showSettings
             rhs={
@@ -122,9 +122,9 @@ export default async function Home(props: {
                 <DateNavigation dates={datesPromise} />
               </div>
             }
+            isTopLevelBar={false}
             mobileBottomBar={<DateNavigation dates={datesPromise} mobile />}
-            desktopPadding={false}
-            backgroundClassName="bg-transparent pb-0 shadow-none md:pt-0 md:pb-0 md:pl-0 md:pr-0"
+            dividerClassName="md:border-b border-gray-400"
           />
           <div className="md:px-0 md:pb-0 md:pt-2">
             <div className="mt-8 flex flex-col gap-2 md:mt-0">
@@ -148,7 +148,7 @@ export default async function Home(props: {
             </div>
           </div>
         </aside>
-        <div className="pl-safe pr-safe pb-safe flex flex-grow flex-col bg-transparent pt-4 md:min-h-0 md:min-w-0 md:flex-1 md:overflow-hidden md:pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pl-0 md:pr-[max(0.5rem,env(safe-area-inset-right))] md:pt-[max(0.5rem,env(safe-area-inset-top))]">
+        <div className="pl-safe pr-safe pb-safe md:pb-safe md:pr-safe md:pt-safe flex flex-grow flex-col bg-transparent pt-4 md:min-h-0 md:min-w-0 md:flex-1 md:overflow-hidden md:pl-0">
           <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-2xl md:bg-transparent md:p-0.5">
             <div className="flex min-h-0 flex-1 flex-col md:overflow-hidden md:rounded-xl md:bg-foreground-100 md:p-3 md:dark:bg-background">
               <TransactionFeed
