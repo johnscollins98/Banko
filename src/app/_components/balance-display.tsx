@@ -1,23 +1,37 @@
 "use client";
 
 import { formatAsGBP } from "@/lib/currency-format";
-import { Tooltip } from "@heroui/react";
+import { cn, Tooltip } from "@heroui/react";
 
 export const BalanceDisplay = ({
   amount,
   label,
   tooltip,
+  containerClassName,
+  balanceSize = "text-2xl",
+  labelClassName = "text-xs",
+  positiveColor = "text-blue-100",
+  negativeColor = "text-red-200",
 }: {
   amount: number;
-  label: string;
+  label?: string;
   tooltip?: string;
+  containerClassName?: string;
+  balanceSize?: string;
+  labelClassName?: string;
+  positiveColor?: string;
+  negativeColor?: string;
 }) => {
   return (
     <Tooltip content={tooltip} placement="bottom" hidden={!tooltip}>
-      <div className="flex flex-col items-center text-xl font-bold">
-        <span className="text-xs font-semibold">{label}</span>
+      <div className={cn("items-left flex flex-col", containerClassName)}>
+        {label && <span className={labelClassName}>{label}</span>}
         <span
-          className={amount >= 0 ? "text-blue-200" : "text-red-200"}
+          className={cn(
+            "font-bold",
+            amount >= 0 ? positiveColor : negativeColor,
+            balanceSize,
+          )}
           suppressHydrationWarning
         >
           {formatAsGBP(amount, false, true)}

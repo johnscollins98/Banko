@@ -58,8 +58,7 @@ export default function SpendingSummary({
 
   return (
     <section id="spending-summary" className="text-white">
-      <h2 className="mb-2 font-semibold">Spending Summary</h2>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
         <CashFlowOverview budgets={budgets} offset={offset} totals={totals} />
         <div className="flex flex-wrap gap-2">
           <CategoryChip

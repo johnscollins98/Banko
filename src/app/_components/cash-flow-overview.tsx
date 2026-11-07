@@ -36,24 +36,58 @@ export const CashFlowOverview = ({ totals, budgets, offset }: Props) => {
   const cashflowAfterBudget = actualCashflow + remainingSpend;
 
   return (
-    <div className="flex justify-between">
-      <BalanceDisplay
-        amount={actualCashflow / 100}
-        label="Cash Flow"
-        tooltip="Actual cash flow for this period (based on real spending)"
-      />
-      {offset === 0 && (
+    <div className="rounded-lg bg-foreground-200 p-4">
+      <div className="flex items-baseline justify-between">
+        <div className="font-bold text-foreground">Cash Flow</div>
         <BalanceDisplay
-          amount={cashflowAfterBudget / 100}
-          label="After Budget"
-          tooltip="Cash flow for this period if you were to spend your remaining budget."
+          amount={actualCashflow / 100}
+          tooltip="Actual cash flow for this period (based on real spending)"
+          balanceSize="text-lg"
+          positiveColor={positiveColor}
+          negativeColor={negativeColor}
+          containerClassName="items-start"
         />
-      )}
-      <BalanceDisplay
-        amount={budgetCashflow}
-        label="Budget Cash Flow"
-        tooltip="Cash flow based on your budgets alone for this period."
-      />
+      </div>
+      <div className="mt-2 flex justify-between gap-1">
+        {offset === 0 && (
+          <SubBalanceDisplay
+            amount={cashflowAfterBudget / 100}
+            label="After Budget"
+            tooltip="Cash flow for this period if you were to spend your remaining budget."
+          />
+        )}
+        <SubBalanceDisplay
+          amount={budgetCashflow}
+          label="Budgeted"
+          tooltip="Cash flow based on your budgets alone for this period."
+        />
+      </div>
     </div>
   );
 };
+
+const SubBalanceDisplay = ({
+  amount,
+  label,
+  tooltip,
+}: {
+  amount: number;
+  label: string;
+  tooltip: string;
+}) => {
+  return (
+    <BalanceDisplay
+      amount={amount}
+      containerClassName="bg-foreground-100 rounded px-2 py-1 flex-1"
+      balanceSize="text-md"
+      labelClassName="text-xs text-foreground"
+      positiveColor={positiveColor}
+      negativeColor={negativeColor}
+      label={label}
+      tooltip={tooltip}
+    />
+  );
+};
+
+const positiveColor = "text-green-600 dark:text-green-400";
+const negativeColor = "text-red-500 dark:text-red-400";
