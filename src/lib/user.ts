@@ -8,12 +8,22 @@ import { getAccounts } from "./accounts";
 import { Starling } from "./starling-api-service";
 
 const getUserAccount = cache(async () => {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  // This override is deliberately available only in local development. Never
+  // let a production deployment use an environment variable to impersonate a
+  // user.
+  const defaultEmail =
+    process.env.NODE_ENV === "development"
+      ? process.env.DEV_DEFAULT_EMAIL?.trim()
+      : undefined;
+
+  const session = defaultEmail ? null : await getServerSession(authOptions);
+  if (!session && !defaultEmail) {
     redirect("/login");
   }
 
-  const { user } = session;
+  const user = defaultEmail
+    ? { id: defaultEmail, email: defaultEmail, name: defaultEmail }
+    : session?.user;
   if (!user) {
     redirect("/forbidden");
   }
