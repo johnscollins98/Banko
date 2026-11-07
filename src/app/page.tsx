@@ -126,7 +126,7 @@ export default async function Home(props: {
             desktopPadding={false}
             backgroundClassName="bg-transparent pb-0 shadow-none md:pt-0 md:pb-0 md:pl-0 md:pr-0"
           />
-          <div className="md:px-0 md:pb-0 md:pt-6">
+          <div className="md:px-0 md:pb-0 md:pt-2">
             <div className="mt-8 flex flex-col gap-2 md:mt-0">
               <BalanceOverview
                 totals={totals}

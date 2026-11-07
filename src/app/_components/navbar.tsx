@@ -105,7 +105,7 @@ const getNavbarPaddingClassName = ({
 
   const verticalPadding = desktopPadding
     ? "md:pt-[max(8px,env(safe-area-inset-top))] md:pb-2"
-    : "md:pt-0 md:pb-0";
+    : "md:pt-2 md:pb-2";
   const horizontalPadding = desktopSafePadding
     ? "md:pl-safe md:pr-safe"
     : desktopPadding

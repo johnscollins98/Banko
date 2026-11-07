@@ -14,7 +14,8 @@ export default async function SettingsPage() {
         showHome
         mobileBottomBarIsButton
         desktopSafePadding
-        backgroundClassName="bg-transparent pb-0 shadow-none md:bg-gradient-to-br md:from-pink-600 md:to-purple-800 md:pb-4 md:shadow-md"
+        desktopPadding={false}
+        backgroundClassName="bg-transparent pb-0 shadow-none md:bg-gradient-to-br md:from-pink-600 md:to-purple-800 md:shadow-md"
         mobileBottomBar={
           <button
             type="submit"
